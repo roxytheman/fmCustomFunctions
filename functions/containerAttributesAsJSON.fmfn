@@ -2,6 +2,7 @@
 
 // Returns container attributes as JSON array with added filetype if file has file extension
 
+// Function Name : ContainerAttributesAsJSON
 // Parameters : container ; attributeName
 // Use example : ContainerAttributesAsJSON ( myTable::myContainerField ; "all" )
 
@@ -38,7 +39,7 @@ While ( [
 // Wraps the response of GetContainerAttribute in a JSON array.
 // Adds a filetype object if the file has an extension in the filename separated by a period.
 
-// GitHub : 
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/5bd0ea5bf658ca66d2767717b0ca941f18147c31/functions/containerAttributesAsJSON.fmfn
 // BD Link : https://www.briandunning.com/cf/2782
 // Written by: jonni@me.com
 // V 1.2
