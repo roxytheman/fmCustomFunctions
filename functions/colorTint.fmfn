@@ -1,0 +1,56 @@
+// COLOR TINT
+
+// Returns a colour tint of given hex colour
+// Input tint percentage for the returned colour chroma ( 0 - 100 )
+// Input desired output format HEX or RGB as JSON
+
+// Parameters : color ; tint ; output
+// Use example : ColorTint ( "#7962a8" ; 50 ; "hex" )
+
+Let ( [
+
+    // Input variables
+    ~color = Substitute ( Filter ( Upper ( color ) ; "0123456789ABCDEF" ) ; [ "A" ; ":" ] ; [ "B" ; ";" ] ; [ "C" ; "<" ] ; [ "D" ; "=" ] ; [ "E" ; ">" ] ; [ "F" ; "?" ] ) ; // Hex color input (e.g., "#7962a8")
+    ~tint = ( 100 - GetAsNumber ( tint )) / 100 ; // Convert percentage to a fraction (e.g., 30% becomes 0.7)
+    ~output = output ;	 // Choose output format ("hex" or "rgb")
+
+    // Extract RGB components from hex color
+  	~r = ( Code ( Middle ( ~color ; 2 ; 1 ) ) - 48 ) + ( Code ( Middle ( ~color ; 1 ; 1 ) ) - 48 ) * 16 ;
+  	~g = ( Code ( Middle ( ~color ; 4 ; 1 ) ) - 48 ) + ( Code ( Middle ( ~color ; 3 ; 1 ) ) - 48 ) * 16 ;
+  	~b = ( Code ( Middle ( ~color ; 6 ; 1 ) ) - 48 ) + ( Code ( Middle ( ~color ; 5 ; 1 ) ) - 48 ) * 16 ;
+
+    // Adjust each RGB component by scaling it based on the percentage for lightening
+    ~newR = Round ( ~r + (255 - ~r ) * ~tint ; 0 ) ;
+    ~newG = Round ( ~g + (255 - ~g ) * ~tint ; 0 ) ;
+    ~newB = Round ( ~b + (255 - ~b ) * ~tint ; 0 ) ;
+
+    // Clamp values to ensure they stay within RGB range
+    ~finalR = Min ( ~newR ; 255 ) ;
+    ~finalG = Min ( ~newG ; 255 ) ;
+    ~finalB = Min ( ~newB ; 255 ) ;
+
+    // Convert each adjusted RGB value back to two-digit hex
+    ~hexR = Right ( "0" & BaseConvert ( ~finalR ; 10 ; 16 ) ; 2 ) ;
+    ~hexG = Right ( "0" & BaseConvert ( ~finalG ; 10 ; 16 ) ; 2 ) ;
+    ~hexB = Right ( "0" & BaseConvert ( ~finalB ; 10 ; 16 ) ; 2 )
+
+] ;
+
+    // Return output in desired format
+
+    Case ( 
+        ~output = "hex" ; "#" & ~hexR & ~hexG & ~hexB ; 
+        ~output = "rgb" ; JSONSetElement ( "" ; [ "r" ; ~finalR ; 2 ] ; [ "g" ; ~finalG ; 2 ] ; [ "b" ; ~finalB ; 2 ] ) ; 
+
+        "error"
+
+    )
+)
+
+// Calculates and returns a colour tint or chroma of given colour in HEX format. Tint is passed as a percentage value for the colour chroma to be returned with valid range between 0 - 100 passed as number only value.
+// Output can be a hexadecimal colour value or RGB values returned in a JSON array.
+
+// GitHub : 
+// BD Link : https://www.briandunning.com/cf/2781
+// Written by: jonni@me.com
+// V 1.0
