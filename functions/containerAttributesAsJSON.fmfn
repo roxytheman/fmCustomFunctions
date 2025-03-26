@@ -1,0 +1,44 @@
+// CONTAINER ATTRIBUTES AS JSON
+
+// Returns container attributes as JSON array with added filetype if file has file extension
+
+// Parameters : container ; attributeName
+// Use example : ContainerAttributesAsJSON ( myTable::myContainerField ; "all" )
+
+While ( [ 
+
+	~array = GetContainerAttribute ( container ; attributeName ) ;
+	~count = ValueCount ( ~array ) ;
+	~pos = "" ;
+	~line = "" ;
+	~result = "" ; 
+	~i = 1 
+
+] ; 
+
+	~i ≤ ~count
+
+; [ 
+
+	~line = GetValue ( ~array ; ~i ) ;
+	~pos = Position ( ~line ; ":" ; 1 ; 1 );
+	~result = Case ( Left ( ~line ; 1 ) = "[" ; ~result ; IsEmpty ( ~line ) ; ~result ; 
+
+		JSONSetElement ( ~result ; Left ( ~line ; ~pos - 1 ) ; Right ( ~line ; Length ( ~line ) - ~pos - 1 ) ; 1 )
+
+		) ;
+	~i = ~i + 1
+
+] ; 
+
+	JSONSetElement ( ~result ; "filetype" ; Right ( JSONGetElement ( ~result ; "Filename" ) ; Length ( JSONGetElement ( ~result ; "Filename" ) ) - Position ( JSONGetElement ( ~result ; "Filename" ) ; "." ; 1 ; PatternCount ( JSONGetElement ( ~result ; "Filename" ) ; "." ) ) ) ; 1 )
+
+)
+
+// Wraps the response of GetContainerAttribute in a JSON array.
+// Adds a filetype object if the file has an extension in the filename separated by a period.
+
+// GitHub : 
+// BD Link : https://www.briandunning.com/cf/2782
+// Written by: jonni@me.com
+// V 1.2
