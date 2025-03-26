@@ -3,6 +3,7 @@
 // This function checks if a given keyword is an SQL reserved word or 
 // contains invalid characters, returning either an “OK” message or a warning.
 
+// Function Name : CheckReservedSQL
 // Parameters : keyword
 // Use example : CheckReservedSQL ( "Select" )
 
