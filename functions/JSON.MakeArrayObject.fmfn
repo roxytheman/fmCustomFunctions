@@ -1,0 +1,33 @@
+// JSON MAKE ARRAY OBJECT
+
+// Simple function that wraps a list of values in an array object.
+
+// Function Name : JSON.MakeArrayObject
+// Parameters : ValueList ; Separator
+// Use example : JSON.MakeArrayObject ( List ( 1;2;3;4;5 ) ; "¶" )
+
+Let ( [
+
+	~list = ValueList ; // List of values separated by a distinct marker
+	~numb = Filter ( ~list ; "0123456789" & Separator ) ; // Clean value list containing only numbers and the separator
+	~type = If ( Length ( ~list ) = Length ( ~numb ) ; 1 ; 0 ) ; // 0:string | 1:number
+	~open = If ( ~type ; "[ " ; "[ \"" ) ; // Opening segment of array
+	~close = If ( ~type ; " ]" ; "\" ]" ) ; // Closing segment of array
+	~sep = If ( ~type ; "," ; "\",\"" ) // Substitution text separating items in array
+
+] ; 
+
+	~open & Substitute ( ~list ; Separator ; ~sep ) & ~close
+
+)
+
+// Simple function that wraps a list of values in an array object to be used within an array object in a JSON notation.
+
+// JSONSetElement ( "{}" ; "myArray" ; JSON.MakeArrayObject ( List ( 1;2;3;4;5 ) ; "¶" ) ; JSONArray )
+// or
+// JSONSetElement ( "{}" ; "myArray" ; JSON.MakeArrayObject ( List ( "a";"b";"c";"d";"e" ) ; "¶" ) ; JSONArray )
+
+// GitHub : 
+// BD Link : https://www.briandunning.com/cf/2733
+// Written by: jonni@me.com
+// V 1.0
