@@ -1,0 +1,52 @@
+// URL PARAMETERS JSON
+
+// Returns URL parameter format as JSON
+
+// Function Name : URLParameters.JSON
+// Parameters : payload
+// Use example : URLParameters.JSON ( "amount=100&checksum=CA2203648BEBFF7DE33581B0D25F2855&id=205C18A1-7BAF-413D-BB1F-89523DB504A9&paid=1" )
+
+While ( [ 
+
+	~payload = payload ;
+	~array = Substitute ( ~payload ; "&" ; "¶" ) ;
+	~count = ValueCount ( ~array ) ;
+	~pSet = "" ;
+	~jType = "" ;
+	~result = "" ;
+	~i = 1
+
+
+] ; 
+
+	~i ≤ ~count
+
+; [ 
+
+	~pSet = Substitute ( GetValue ( ~array ; ~i ) ; "=" ; "¶" ) ;
+	~key = GetValue ( ~pSet ; 1 ) ;
+	~value = Substitute ( GetValue ( ~pSet ; 2 ) ; [ "20%" ; " " ] ; [ "%3C" ; "<" ] ; [ "%3E" ; ">" ] ; [ "23%" ; "#" ] ; [ "25%" ; "%" ] ; [ "%2B" ; "+" ] ; [ "%7B" ; "{" ] ; [ "%7D" ; "}" ] ; [ "%7C" ; "|" ] ; [ "%5C" ; "\\" ] ; [ "%5E" ; "^" ] ; [ "%7E" ; "~" ] ; [ "%5B" ; "[" ] ; [ "%5D" ; "]" ] ; [ "60%" ; "‘" ] ; [ "%3B" ; ";" ] ; [ "%2F" ; "/" ] ; [ "%3F" ; "?" ] ; [ "%3A" ; ":" ] ; [ "40%" ; "@" ] ; [ "%3D" ; "=" ] ; [ "26%" ; "&" ] ; [ "24%" ; "$" ] ) ;
+	~jType = Case ( 
+
+		GetValue ( ~pSet ; 2 ) = "true" ; 5 ;
+		GetValue ( ~pSet ; 2 ) = "false" ; 5 ;
+		Filter ( GetValue ( ~pSet ; 2 ) ; ",.0123456789" ) = GetValue ( ~pSet ; 2 ) ; 2 ;
+		1
+
+	) ;
+
+	~result = JSONSetElement ( ~result ; GetValue ( ~pSet ; 1 ) ; GetValue ( ~pSet ; 2 ) ; ~jType ) ;
+	~i = ~i + 1
+
+] ; 
+
+	~result
+
+)
+
+// Returns URL parameters as JSON
+
+// GitHub : 
+// BD Link : https://www.briandunning.com/cf/2669
+// Written by: jonni@me.com
+// V 1.0
