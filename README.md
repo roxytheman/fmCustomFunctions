@@ -1,2 +1,2 @@
 # fmCustomFunctions
-Custom Functions developer for use in FileMaker Pro
+Custom Functions developed for use in FileMaker Pro
