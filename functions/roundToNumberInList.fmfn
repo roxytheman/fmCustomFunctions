@@ -1,0 +1,42 @@
+// ROUND TO NUMBER IN LIST
+
+// Round a target value to nearest number in given list
+
+// Function Name : roundToNumberInList
+// Parameters : target ; array ; operator
+// Use example : roundToNumberInList ( 22 ; List ( 0;20;40;70;100;110 ) ; 1 )
+
+While ( [ 
+
+		~target = GetAsNumber ( target ) ;                 // number to find closest match down on list
+		~array = array ;                                   // list of number separated by carriage return
+		~operator = If ( operator = 0 ; "≤" ; "≥" ) ;      // operator to dermine which way to round 0 for down 1 for up
+		~sort = If ( operator = 0 ; "-" ; "" ) ;           // sort direction for final array depending on rounding
+		~current = "" ;                                    // declaration of current variable
+		~count = ValueCount ( ~array ) ;
+		~result = "" ;                                     // declaration of result variable
+		~i = 1                                             // recursion iterator
+
+	] ; 
+
+		~i ≤ ~count                                         // run loop as long as the iterator is inferior or equal to the number of items in array
+
+	; [ 
+
+		~current = GetAsNumber ( GetValue ( ~array ; ~i ) ) ;                                                                   // pick value to test for this iteration
+		~result = List ( ~result ; If ( Evaluate ( ~current & ~operator & ~target ) ; GetValue ( ~array ; ~i ) ; "" ) )  ;      // include only numbers meeting condition
+		~i = ~i + 1 // advance iterator by one for each recursion
+
+	] ; 
+
+		GetValue ( SortValues ( ~result ; ~sort & 2 ; "English" ) ; 1 )                                                         // sort the final list in a desc order and pick the first value
+
+)
+
+// Round a passed target value to the nearest number in a given list of numbers that are 
+// separated by a carriage return. Rounding up or down is determined by the operator flag 0 for down and 1 for up.
+
+// GitHub : 
+// BD Link : https://www.briandunning.com/cf/2751
+// Written by: jonni@me.com
+// V 1.0
