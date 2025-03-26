@@ -49,7 +49,7 @@
 
 // The function will launch the script with a single word parameter [ "landscape" | "portrait" ] indicating which orientation the device has turned to.
 
-// GitHub : 
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/308fe37b6948884587528cced9d7905dbf5fce9c/functions/doOnOrientationChange.fmfn
 // BD Link : https://www.briandunning.com/cf/2682
 // Written by: jonni@me.com
 // V 1.0
