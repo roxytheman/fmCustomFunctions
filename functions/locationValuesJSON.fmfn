@@ -1,0 +1,33 @@
+// LOCATION VALUES JSON
+
+// Returns response from LocationValues function as JSON instead of return delimited text
+
+// Function Name : locationValuesJSON
+// Parameters : accuracy ; timeout
+// Use example : locationValuesJSON ( 100 ; 40 )
+
+Let ( [
+
+	~locationValues = LocationValues ( accuracy ; timeout ) // accuracy ; timeout
+
+] ;
+
+	JSONSetElement ( "" ; 
+
+		[ "latitude" ; GetValue ( ~locationValues ; 1 ) ; 2 ] ;
+		[ "longitude" ; GetValue ( ~locationValues ; 2 ) ; 2 ] ;
+		[ "altitude" ; GetValue ( ~locationValues ; 3 ) ; 2 ] ;
+		[ "accuracy.horizontal" ; GetValue ( ~locationValues ; 4 ) ; 2 ] ;
+		[ "accuracy.vertical" ; GetValue ( ~locationValues ; 5 ) ; 2 ] ;
+		[ "age" ; GetValue ( ~locationValues ; 6 ) * .6 ; 2 ]
+
+	)
+
+)
+
+// Returns response from LocationValues function as JSON instead of return delimited text
+
+// GitHub : 
+// BD Link : https://www.briandunning.com/cf/2746
+// Written by: jonni@me.com
+// V 1.0
