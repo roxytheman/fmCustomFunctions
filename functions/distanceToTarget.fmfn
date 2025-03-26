@@ -20,7 +20,7 @@ Let ( [
 
 // Returns distance between two sets of gps coordinates in metres.
 
-// GitHub : 
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/360f60105ae72162dc2ec44a3b4f8a642300c045/functions/distanceToTarget.fmfn
 // BD Link : https://www.briandunning.com/cf/2658
 // Written by: jonni@me.com
 // V 1.0
