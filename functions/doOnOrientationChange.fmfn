@@ -1,0 +1,55 @@
+// DO ON ORIENTATION CHANGE
+
+// Triggers a designated FileMaker Script upon device orientation change
+
+// Function Name : doOnOrientationChange
+// Parameters : myFileMakerScriptName
+// Use example : doOnOrientationChange ( "myFileMakerScript" )
+
+"<!DOCTYPE html>
+<html>
+<head>
+  	<style type=\"text/css\">
+  	 html, body { min-height: 100%; height:auto !important; height: 100%; -webkit-box-sizing: border-box; box-sizing: border-box; background-color: #FFFFFF; }
+  	</style>
+</head>
+<body>
+<script>
+
+	function doOnOrientationChange() {
+		switch(window.orientation) {  
+		  case -90: case 90:
+			param = ('landscape');
+			break; 
+		  default:
+			param = ('portrait');
+			break; 
+		}
+	}
+  
+	window.addEventListener('orientationchange', doOnOrientationChange);
+  
+	// Initial execution if needed
+	doOnOrientationChange();
+
+</script>
+
+<script>
+	function doOnOrientationChange() {
+	FileMaker.PerformScript ( '" & fmScript & "', param ) ;
+	}
+	window.addEventListener('orientationchange', doOnOrientationChange);
+</script>
+
+</body>
+</html>"
+
+// Place this function as the calculation in a WebViewer and declare a FileMaker script to run on orientation change on an iPad or iPhone. 
+// This function will work on card windows which will not fire onLayoutSizeChange triggers in FileMaker GO.
+
+// The function will launch the script with a single word parameter [ "landscape" | "portrait" ] indicating which orientation the device has turned to.
+
+// GitHub : 
+// BD Link : https://www.briandunning.com/cf/2682
+// Written by: jonni@me.com
+// V 1.0
