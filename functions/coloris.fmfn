@@ -2,6 +2,7 @@
 
 / Renders Coloris colour picker in a webviewer and returns colour code script declared in the third function parameter
 
+// Function Name : coloris
 // Parameters : defaultColour ; swatches ; targetScript
 // Use example : coloris ( "#C9C9C9" ; "'#ffddce', '#ffc2a8', '#ffa783', '#ff8b60'" ; "myScript" )
 // Dependencies : custom Function: coloris.js (https://www.briandunning.com/cf/2773)
@@ -703,7 +704,7 @@ input.clr-color:focus {
 // TargetScript is the script set to run and receive the picked colour. The colour can be picked by the scriptParameter and processed as needed.
 // Written with initial input from pctechtv.com
 
-// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/cb5ef53f16e872b4fda4dd13faff146c3cb55fc8/functions/CheckReservedSQL.fmfn
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/3c708fc606c9178ef7d3ba5e58fcadb15b46ec6c/functions/coloris.fmfn
 // BD Link : https://www.briandunning.com/cf/2774
 // Written by: jonni@me.com and pctechtv.com
 // Based on https://github.com/mdbassit/Coloris
