@@ -37,7 +37,7 @@ While ( [
 // Set second parameter to 1 or more to indicate the maximum number of characters for each weekday:
 // 6 = Monday, 3 = Mon and 1 = M.
 
-// GitHub : 
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/0703a459eaa834430e0ffce87b432c824eac296a/functions/listWeekDays.fmfn
 // BD Link : https://www.briandunning.com/cf/2748
 // Written by: jonni@me.com
 // Inspired by a field calculation in CalBox by Hi-Voltage
