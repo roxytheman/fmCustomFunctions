@@ -141,7 +141,7 @@ If ( GetAsNumber ( Get ( ApplicationVersion ) ) < 18 ; "Error: requires FileMake
 
 // JSON.eSQL ( field ; modifier ; table ; join ; condition ; group ; order )
 
-// GitHub :
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/7fc63114ecf8fd81f852a0cfcc6b2b4be273a036/functions/JSON.eSQL.fmfn
 // BD Link : https://www.briandunning.com/cf/2786
 // Written by jonni@me.com
 // V 3.0
