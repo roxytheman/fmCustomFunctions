@@ -27,7 +27,7 @@ Let ( [
 // or
 // JSONSetElement ( "{}" ; "myArray" ; JSON.MakeArrayObject ( List ( "a";"b";"c";"d";"e" ) ; "¶" ) ; JSONArray )
 
-// GitHub : 
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/d8293e90913581ef0837e009da07aba7efaa26d6/functions/JSON.MakeArrayObject.fmfn
 // BD Link : https://www.briandunning.com/cf/2733
 // Written by: jonni@me.com
 // V 1.0
