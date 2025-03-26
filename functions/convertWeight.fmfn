@@ -1,0 +1,115 @@
+// CONVERT WEIGHT
+
+// Converts input of weight to grams, ounces or pounds
+
+// Parameters : value ; input ; output ; precision ; separator
+// Use example : convertWeight ( 650 ; 1 ; 5 ; 2 ; 1 )
+
+
+Let ( [
+
+		~value = value ;
+		~input = input ; // 1:gr ; 2:oz ; 3:lbs
+		~output = output ; // 1:gr ; 2:oz ; 3:lbs ; 4:auto_us ; 5:mixed_us 
+		~precision = precision ;
+		~separator = Case ( separator = 1 ; Char ( 9) ; separator = 2 ; Char (13) ; separator ) ; 
+		~basevalue = Case ( ~input = 1 ; ~value ; ~input = 2 ; ~value * 28.349523125 ; ~input = 3 ; ~value * 453.59290944 ; ~input ) ; // base value is always converted to grams
+		~result = Case ( 
+
+			~output = 1 ; 
+	
+				Case ( 
+
+					~basevalue ≥ 1000 ; RoundUp ( ~basevalue / 1000 ; ~precision ) & ~separator &  "kg" ; 
+					RoundUp ( ~basevalue ; ~precision ) & ~separator & "gr" 
+
+				) ; 
+
+			~output = 2 ; 
+
+				If ( 
+
+					RoundUp ( ~basevalue * .03527396195 ; ~precision ) < 1 ; 
+					"0" & RoundUp ( ~basevalue * .03527396195 ; ~precision ) ; 
+					RoundUp ( ~basevalue * .03527396195 ; ~precision ) 
+
+				) & ~separator & "oz" ; 
+
+			~output = 3 ; 
+
+				If ( 
+
+					RoundUp ( ~basevalue * .00220462262185 ; ~precision ) < 1 ; 
+					"0" & RoundUp ( ~basevalue * .00220462262185 ; ~precision ) ; 
+					RoundUp ( ~basevalue * .00220462262185 ; ~precision ) 
+
+				) & ~separator & "lbs"; 
+
+			~output = 4 ; 
+
+				Case ( 
+
+					~basevalue * .03527396195 ≥ 16 ; 
+					RoundUp ( ~basevalue * .00220462262185 ; ~precision ) & ~separator & "lbs" ; 
+					If ( RoundUp ( ~basevalue * .03527396195 ; ~precision ) < 1 ; 
+					"0" & RoundUp ( ~basevalue * .03527396195 ; ~precision ) ; 
+					RoundUp ( ~basevalue * .03527396195 ; ~precision ) ) & ~separator & "oz" 
+
+				) ;
+
+			~output = 5 ;
+
+				Case ( ~basevalue * .03527396195 ≥ 16 ; Round ( ~basevalue * .00220462262185 ; 0 ) & ~separator & "lbs " & 
+
+					If ( 
+
+						RoundUp ( 
+
+							RoundUp ( ~basevalue * .03527396195 ; ~precision ) - ( Round ( ~basevalue * .00220462262185 ; 0 ) * 16 ) ; ~precision ) < 1 ; 
+							"0" & RoundUp ( RoundUp ( ~basevalue * .03527396195 ; ~precision ) - ( Round ( ~basevalue * .00220462262185 ; 0 ) * 16 ) ; ~precision ) ; 
+							RoundUp ( RoundUp ( ~basevalue * .03527396195 ; ~precision ) - ( Round ( ~basevalue * .00220462262185 ; 0 ) * 16 ) ; ~precision ) 
+
+						)
+
+					& ~separator & "oz" ; 
+
+					If ( 
+
+							RoundUp ( ~basevalue * .03527396195 ; ~precision ) < 1 ; 
+							"0" & RoundUp ( ~basevalue * .03527396195 ; ~precision ) ; 
+							RoundUp ( ~basevalue * .03527396195 ; ~precision ) ) & ~separator & "oz" 
+
+					)
+
+ 			)
+		
+	] ;
+
+		~result
+
+)
+
+// Input parameters: 
+
+//	1 : grams (divide kg values by 1000 before entering)
+//	2 : ounces
+//	3 : pounds
+
+// Output parameters:
+
+//	1 : grams (will output kg with set precision when output value is above 1000 gr)
+//	2 : ounces
+//	3 : pounds
+//	4 : auto_us (outputs anything under 16oz as ounces and as pounds if greater or equal than 16 oz
+//	5 : mixed_us (outputs whole pound units as pounds with remaining weight trailing as ounces)
+
+// Separator:
+
+//	1 : Inserts a tab character to separate values and legends
+//	2 : Inserts carriage return to separate values and legends
+//	# : Set any text in quotes to add as separator ( " " : for space)
+
+// GitHub : 
+// BD Link : https://www.briandunning.com/cf/2745
+// Written by jonni@me.com
+// V 1.3
