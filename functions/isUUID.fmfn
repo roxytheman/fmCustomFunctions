@@ -1,0 +1,37 @@
+// isUUID
+
+// Test if input string is a uuid
+
+// Function Name : isUUID
+// Parameters : uuidString
+// Use example : isUUID ( "EC3C6323-3079-4937-A873-4448CF075150" )
+
+Let (
+ 
+	[ 
+
+		~uuid = Filter ( uuidString ; "abcdef0123456789-" ) ; // uuid string
+		~subbed = Substitute ( ~uuid ; "-" ; "¶" ) ; // split char groups into 5 lines
+		~t1 = If ( Length ( GetValue ( ~subbed ; 1 ) ) = 8 ; True ; False ) ; // group 1 should be 8 chars
+		~t2 = If ( Length ( GetValue ( ~subbed ; 2 ) ) = 4 ; True ; False ) ; // group 2 should be 4 chars
+		~t3 = If ( Length ( GetValue ( ~subbed ; 3 ) ) = 4 ; True ; False ) ; // group 3 should be 4 chars
+		~t4 = If ( Length ( GetValue ( ~subbed ; 4 ) ) = 4 ; True ; False ) ; // group 4 should be 4 chars
+		~t5 = If ( Length ( GetValue ( ~subbed ; 5 ) ) = 12 ; True ; False ) ; // group 5 should be 12 chars
+		~ts = If ( PatternCount ( ~uuid ; "-" ) = 4 ; True ; False ) // number of separation markers should be 4 chars
+
+	] ;
+
+		
+		If ( ~t1 + ~t2 + ~t3 + ~t4 + ~t5 + ~ts = 6 ; True ; False ) 
+
+)
+
+// Written by: jonni@me.com
+// V 1.0
+
+// Test if input string is a uuid. Returns 1 if True and 0 if False.
+
+// GitHub : 
+// BD Link : https://www.briandunning.com/cf/2758
+// Written by: jonni@me.com
+// V 1.0
