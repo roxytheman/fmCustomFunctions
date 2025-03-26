@@ -1,0 +1,40 @@
+// JSON URL PARAMETERS
+
+// Returns JSON as URL parameters
+
+// Function Name : JSON.URLParameters
+// Parameters : JSONpayload
+// Use example : JSON.URLParameters ( "{\"amount\":100,\"checksum\":\"CA2203648BEBFF7DE33581B0D25F2855&id=205C18A1-7BAF-413D-BB1F-89523DB504A9\",\"paid\":true}" )
+
+While ( [ 
+
+	~object = JSONpayload ;
+	~count = ValueCount ( JSONListKeys ( ~object ; "" ) ) ;
+	~key = "" ;
+	~value = "" ;
+	~result = "" ;
+	~i = 1
+
+] ; 
+
+	~i ≤ ~count
+
+; [ 
+
+	~key = GetValue ( JSONListKeys ( ~object ; "" ) ; ~i ) ;
+	~value = Substitute ( JSONGetElement ( ~object ; ~key ) ; [ " " ; "20%" ] ; [ "<" ; "%3C" ] ; [ ">" ; "%3E" ] ; [ "#" ; "23%" ] ; [ "%" ; "25%" ] ; [ "+" ; "%2B" ] ; [ "{" ; "%7B" ] ; [ "}" ; "%7D" ] ; [ "|" ; "%7C" ] ; [ "\\" ; "%5C" ] ; [ "^" ; "%5E" ] ; [ "~" ; "%7E" ] ; [ "[" ; "%5B" ] ; [ "]" ; "%5D" ] ; [ "‘" ; "60%" ] ; [ ";" ; "%3B" ] ; [ "/" ; "%2F" ] ; [ "?" ; "%3F" ] ; [ ":" ; "%3A" ] ; [ "@" ; "40%" ] ; [ "=" ; "%3D" ] ; [ "&" ; "26%" ] ; [ "$" ; "24%" ] ) ;
+	~result = List ( ~result ; ~key & "=" & ~value ) ;
+	~i = ~i + 1
+
+] ; 
+
+	Substitute ( ~result ; "¶" ; "&" ) 
+
+)
+
+// Returns JSON as URL parameters
+
+// GitHub : 
+// BD Link : https://www.briandunning.com/cf/2670
+// Written by: jonni@me.com
+// V 1.2
