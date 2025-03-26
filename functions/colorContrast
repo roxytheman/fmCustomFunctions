@@ -29,7 +29,7 @@ Let ( [
 // Returns a 0 for dark and 1 for bright
 // Input HEX format colour
 
-// GitHub : 
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/00f40c04c1567a5d05f79ce246c92d25200cf7e7/functions/colorContrast
 // BD Link : https://www.briandunning.com/cf/2782
 // Written by: jonni@me.com
 // V 1.0
