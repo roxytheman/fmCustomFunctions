@@ -31,7 +31,7 @@ Let (
 
 // Test if input string is a uuid. Returns 1 if True and 0 if False.
 
-// GitHub : 
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/e639142f23917d68f42e13880f9da3ee1ecdb2a9/functions/isUUID.fmfn
 // BD Link : https://www.briandunning.com/cf/2758
 // Written by: jonni@me.com
 // V 1.0
