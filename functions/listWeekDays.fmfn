@@ -1,0 +1,44 @@
+// LIST WEEK DAYS
+
+// Returns a list of weekday names in language (locale) set by operating system
+
+// Function Name : listWeekDays
+// Parameters : startsOnSunday ; dayLength
+// Use example : listWeekDays ( False ; 3 )
+
+While ( [ 
+
+		~sunday = Date ( 2 ; 1 ; 2004 ) ; 				              		// Known date that's a Sunday
+		~startsOnSunday = startsOnSunday ; 			                		// Boolean value indicating if the week starts on a Sunday [ 0 : False | 1 : True ]
+		~dayLength = dayLength ;				      	              			// Max number of characters to display for a day (name)
+		~day = "" ;										                            	// Declaration of day variable
+		~count = If ( ~startsOnSunday ; 7 ; 8 ) ;              			// Number of iterations to run depending on starting weekday
+		~result = "" ;											                        // Declaration of result variable
+		~i = If ( ~startsOnSunday ; 0 ; 1 )				              		// Iteration controller
+
+	] ; 
+
+		~i < ~count 										                          	// Run for as many times as count dictates
+
+	; [ 
+
+		~day = Left ( DayName ( ~sunday + ~i ) ; ~dayLength ) ;	    // Get as many characters as set for current iteration day name
+		~result = List ( ~result ; ~day  ) ;							          // Aggregate a list of days separated by carriage return
+		~i = ~i + 1										                             	// Move iterator forwards for each iteration
+	
+	] ; 
+
+		~result							                               					// Return a list of day names
+
+)
+
+// Returns a list of weekday names in language set by operating system.
+// Set first parameter to 1 or True to start list on a Sunday, 0 or False to start list on a Monday.
+// Set second parameter to 1 or more to indicate the maximum number of characters for each weekday:
+// 6 = Monday, 3 = Mon and 1 = M.
+
+// GitHub : 
+// BD Link : https://www.briandunning.com/cf/2748
+// Written by: jonni@me.com
+// Inspired by a field calculation in CalBox by Hi-Voltage
+// V 1.0
