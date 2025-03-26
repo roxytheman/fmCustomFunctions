@@ -3,6 +3,7 @@
 // Returns a 0 for dark and 1 for bright
 // Input HEX format colour
 
+// Function Name : colorContrast
 // Parameters : color
 // Use example : colorContrast ( "#7962a8" )
 
