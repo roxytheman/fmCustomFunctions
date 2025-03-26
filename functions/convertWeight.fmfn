@@ -2,6 +2,7 @@
 
 // Converts input of weight to grams, ounces or pounds
 
+// Function Name : convertWeight
 // Parameters : value ; input ; output ; precision ; separator
 // Use example : convertWeight ( 650 ; 1 ; 5 ; 2 ; 1 )
 
@@ -109,7 +110,7 @@ Let ( [
 //	2 : Inserts carriage return to separate values and legends
 //	# : Set any text in quotes to add as separator ( " " : for space)
 
-// GitHub : 
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/7c8c7b73ea21b64107ad4b33558044e3c7e65799/functions/convertWeight.fmfn
 // BD Link : https://www.briandunning.com/cf/2745
 // Written by jonni@me.com
 // V 1.3
