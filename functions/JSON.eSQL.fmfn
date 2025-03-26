@@ -1,0 +1,147 @@
+// JSON.ESQL
+
+// Returns ExecuteSQL as a JSON in FileMaker Data API structure
+
+// Function Name : JSON.eSQL
+// Parameters : field ; modifier ; table ; join ; condition ; group ; order
+// Use example : JSON.eSQL ( "d_name_T, d_state_J, d_termsPayment_N" ; "DISTINCT" ; "customer" ; "" ; "d_termsPayment_N > 60" ; "" ; "d_name_T DESC" )
+
+If ( GetAsNumber ( Get ( ApplicationVersion ) ) < 18 ; "Error: requires FileMaker 18 or higher." ;
+ 
+	While ( [ 
+ 
+ 		~ver = GetAsNumber ( Get ( ApplicationVersion ) ) ;
+		~table = table ; // insert table name here (required)
+		~modifier = If ( IsEmpty ( modifier ) ; "" ; modifier & " " ) ; // insert modifier with parameter here (optional)
+		~columns = Case ( Right ( field ; 1 ) = "," ; Left ( field ; Length ( field ) - 1 ) ; field ) ; // insert either field names or * wildcard (required)
+		~join = If ( IsEmpty ( join ) ; "" ; " " & join & " " ) ; // insert join with parameter here (optional) MUST INCLUDE JOIN or INNER JOIN etc...
+		~group = If ( IsEmpty ( group ) ; "" ; " GROUP BY " & Substitute ( order ; [ "GROUP BY " ; "" ] ; [ "GROUP BY" ; "" ] ; [ "GROUP " ; "" ] ; [ "GROUP" ; "" ] ) ) ; // insert group with parameter here (optional)
+		~order = If ( IsEmpty ( order ) ; "" ; " ORDER BY " & Substitute ( order ; [ "ORDER BY " ; "" ] ; [ "ORDER BY" ; "" ] ; [ "ORDER " ; "" ] ; [ "ORDER" ; "" ] ) ) ; // insert order with parameter here (optional)
+		
+		~condition = Case ( IsEmpty ( condition ) ; "" ; " " & condition )  ; // optional condition
+		~thatUUID = Get ( UUID ) ; // unique row separator
+		~fields = If ( ~columns = "*" ; 
+		
+			If ( 
+			
+				~ver > 21.1 ; 
+				
+					ExecuteSQLe ( "SELECT FieldName FROM FileMaker_Fields WHERE TableName='" & ~table & "' ORDER BY FieldName" ; "" ; "" ) ; 
+					ExecuteSQL ( "SELECT FieldName FROM FileMaker_Fields WHERE TableName='" & ~table & "' ORDER BY FieldName" ; "" ; "" ) 
+				
+				) ; 
+				
+				Substitute ( ~columns ; ", " ; "¶" ) ) ; // sql query for all field names in designated table
+
+
+		~selector = "\"" & Substitute ( ~fields ; "¶" ; "\", \"" ) & "\""; // yields comma separated string of field names
+		~query = "SELECT " & ~modifier & ~selector & " FROM \"" & ~table & "\"" & ~join & ~condition & ~group & ~order ; // define sql query
+		~execute = If ( ~ver > 21.1 ; ExecuteSQLe ( ~query ; ~thatUUID ; "" ) ; ExecuteSQL ( ~query ; ~thatUUID ; "" ) ) ; // perform sql query, fields are separaed with unique separation key
+		~rowCount = ValueCount ( ~execute ) ; // number of rows returned from query
+		~fieldCount = ValueCount ( ~fields ) ; // number of fields in table
+		~runCount = ~fieldCount * ~rowCount ; // number of times the statement has to run is once for every field in each row
+		~calc = Case ( 
+		
+			IsEmpty ( ~fields ) ;
+			
+				JSONSetElement ( "" ; 
+			
+					[ "messages[0]code" ; 106 ; 2 ] ;
+					[ "messages[0]message" ; "The table named " & ~table & " does not exist" ; 1 ]
+			
+				)
+	
+			;
+			
+			Left ( ~execute ; 1 ) = "?" ; 
+			
+				Let ( [
+		
+					~string = Substitute ( ~execute ; [ "? ERROR: FQL" ; "" ] ; [ "/" ; "¶" ] ; [ "): " ; "¶" ] ; [ "\"" ; "'" ] )
+				
+				] ; 
+				
+					JSONSetElement ( "" ; 
+				
+						[ "messages[0]code" ; GetValue ( ~string ; 1 ) ; 2 ] ;
+						[ "messages[0]message" ; GetValue ( ~string ; 3 ) ; 1 ]
+				
+					)
+					
+				) 
+	
+			;
+			
+				JSONSetElement ( "" ; 
+				
+					[ "messages[0]code" ; "0" ; 1 ] ;
+					[ "messages[0]message" ; "OK" ; 1 ] ;
+				
+					[ "response.dataInfo.database" ; Get ( FileName ) ; 1 ] ; 
+					[ "response.dataInfo.table" ; ~table ; 1 ] ; 
+					[ "response.dataInfo.layout" ; "N/A" ; 1 ] ; 
+					[ "response.dataInfo.foundCount" ; ~rowCount ; 2 ] ; 
+					[ "response.dataInfo.returnedCount" ; ~rowCount ; 2 ] ; 
+					[ "response.dataInfo.totalRecordCount" ; ExecuteSQL ( "SELECT COUNT (*) AS total_count FROM " & ~table ;"";"" ) ; 2 ] ; // run total count only if no errors have occurred (requires one less error trap)
+					[ "response.dataInfo.fieldCount" ; ~fieldCount ; 2 ] 
+					
+				) 
+							
+		) ; // Error trap sql queries and initialise response var if no errors come back
+		
+		~row = "" ; // initialisation of variable
+		~type = "" ; // initialisation of variable
+		~i = 1 ; // run iterator
+		~ri = 1 ; // row iterator
+		~fi = 1 ; // field iterator
+		~ai = 0 // object array iterator
+ 
+	] ; 
+ 
+		not IsEmpty ( ~fields ) and
+ 		Left ( ~execute ; 1 ) ≠ "?" and
+		~i ≤ ~runCount // run this as long as the iterator is less than or equal to the number of runs needed
+ 
+	; [ 
+ 
+		~ai = Ceiling ( ( ~i / ~fieldCount ) - 1 ) ; // repeat the array iterator as many times as the number of fields then increase by one 
+		~ri = Ceiling ( ~i / ~fieldCount ) ; // repeat the row iterator as many times as the number of fields then increase by one 
+		~row = Substitute ( GetValue ( ~execute ; ~ri ) ; ~thatUUID ; "¶" ) ; // fetch current row form list of returned rows from sql query
+		~type = Case ( isEmpty ( GetValue ( ~row ; ~fi ) ) ; 6 ; Length ( GetValue ( ~row ; ~fi ) ) = Length ( GetAsNumber ( GetValue ( ~row ; ~fi ) ) ) ; 2 ; Left ( JSONFormatElements ( GetValue ( ~row ; ~fi ) ) ; 1 ) ≠ "?" ; 0 ; 1 ) ; // detect json type
+		~calc = JSONSetElement ( ~calc ; "response.data[" & ~ai & "]fieldData." & GetValue ( ~fields ; ~fi ) ; GetValue ( ~row ; ~fi ) ; ~type ) ; // build json array with field name as key
+		~fi = Case ( ~fi < ~fieldCount ; ~fi + 1 ; 1 ) ; // iterator that increments by one until the number of fields is reached then it's reset to start again from 1
+		~i = ~i + 1 // run iterator increment by 1 
+ 
+	] ; 
+ 
+		~calc
+ 
+	)
+)
+
+// This is an updated function combining SQLasJSON and fullTableSQLasJSON into one function
+// Outputs a JSON array that follows the same structure as FileMaker Data API
+
+// 1 : field (required) : list field names separated by a comma or request full table entering a *
+// 2 : modifier (optional) : the modifier will be injected after SELECT. Example "DISTINCT", which will resolve to SELECT DISTINCT myfield1, myfield2...
+// 3 : join (optional) : declare a join relationship. Example "JOIN myTable ON matches", which will resolve to ...JOIN myTable ON matches...
+// 4 : condition (optional) : declare a condition in this parameter. Example "WHERE id = 123"
+// 5 : group (optional) : declare a result grouping. Example "myField", which will resolve to GROUP BY myField...
+// 6 : order (optional) : declare result order/sort. Example "myField ASC", which will resolve to ORDER BY myField ASC...
+
+// NOTE : When using joins you need to declare all fields. * is not supported for joins.
+// This is an updated function combining SQLasJSON and fullTableSQLasJSON into one function
+
+// New in this version
+// 1. declare * for full table resolve
+// 2. support for modifier, join, group and sort
+// 3. improved error handling using ExecuteSQLe error responses when supported (FMP21.1.1+)
+// 4. follows FileMaker Data API response structure
+// 5. detects and declares JSONNumber for numbers only values and JSONString for other values
+
+// JSON.eSQL ( field ; modifier ; table ; join ; condition ; group ; order )
+
+// GitHub :
+// BD Link : https://www.briandunning.com/cf/2786
+// Written by jonni@me.com
+// V 3.0
