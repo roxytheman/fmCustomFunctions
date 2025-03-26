@@ -24,7 +24,7 @@ Let ( [
 
 // Returns response from Location function as JSON instead of return delimited text
 
-// GitHub : 
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/38d14beb8bf089cf5796468f03b0a8197264559a/functions/locationJSON.fmfn
 // BD Link : https://www.briandunning.com/cf/2747
 // Written by: jonni@me.com
 // V 1.0
