@@ -1,0 +1,30 @@
+// LOCATION JSON
+
+// Returns response from Location function as JSON instead of return delimited text
+
+// Function Name : locationJSON
+// Parameters : accuracy ; timeout
+// Use example : locationJSON ( 100 ; 40 )
+
+Let ( [
+
+	~location = Location ( accuracy ; timeout ) // accuracy ; timeout
+
+] ;
+ 
+	JSONSetElement ( "" ; 
+
+		[ "latitude" ; GetValue ( ~location ; 1 ) ; 2 ] ;
+		[ "longitude" ; GetValue ( ~location ; 2 ) ; 2 ] ;
+		[ "accuracy" ; GetValue ( ~location ; 3 ) ; 2 ] 
+
+	)
+
+)
+
+// Returns response from Location function as JSON instead of return delimited text
+
+// GitHub : 
+// BD Link : https://www.briandunning.com/cf/2747
+// Written by: jonni@me.com
+// V 1.0
