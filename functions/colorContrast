@@ -1,0 +1,35 @@
+// COLOR CONTRAST
+
+// Returns a 0 for dark and 1 for bright
+// Input HEX format colour
+
+// Parameters : color
+// Use example : colorContrast ( "#7962a8" )
+
+
+Let ( [
+	
+	// Input variables
+	~color = Substitute ( Filter ( Upper ( color ) ; "0123456789ABCDEF" ) ; [ "A" ; ":" ] ; [ "B" ; ";" ] ; [ "C" ; "<" ] ; [ "D" ; "=" ] ; [ "E" ; ">" ] ; [ "F" ; "?" ] ) ; // Hex color input (e.g., "#7962a8")
+
+	// Extract RGB components from hex color
+	~r = ( Code ( Middle ( ~color ; 2 ; 1 ) ) - 48 ) + ( Code ( Middle ( ~color ; 1 ; 1 ) ) - 48 ) * 16 ;
+	~g = ( Code ( Middle ( ~color ; 4 ; 1 ) ) - 48 ) + ( Code ( Middle ( ~color ; 3 ; 1 ) ) - 48 ) * 16 ;
+	~b = ( Code ( Middle ( ~color ; 6 ; 1 ) ) - 48 ) + ( Code ( Middle ( ~color ; 5 ; 1 ) ) - 48 ) * 16 ;
+
+	// Calculate colour luminance
+	~luminance = ( .299 * ~r ) + ( .587 * ~g ) + ( .114 * ~b )
+
+	] ;
+
+	~luminance > 128 // Returns 1 if light, 0 if dark
+
+)
+
+// Returns a 0 for dark and 1 for bright
+// Input HEX format colour
+
+// GitHub : 
+// BD Link : https://www.briandunning.com/cf/2782
+// Written by: jonni@me.com
+// V 1.0
