@@ -1,0 +1,26 @@
+// DISTANCE TO TARGET
+
+// Returns distance between two sets of gps coordinates in metres.
+
+// Function Name : distanceToTarget
+// Parameters : targetLat ; targetLng ; startLat ; startLng
+// Use example : distanceToTarget ( 41.40338 ; 2.17403 ; 40.748440 ; -73.984559 )
+
+Let ( [
+	
+	~lat = targetLat ;
+	~lng = targetLng ;
+	~glat = startLat ;
+	~glng = startLng
+] ;
+
+	Acos ( Sin(~lat*Pi/180)*Sin(~glat*Pi/180) + Cos(~lat*Pi/180)*Cos(~glat*Pi/180)*Cos(~glng*Pi/180-~lng*Pi/180) ) * 6371000
+
+)
+
+// Returns distance between two sets of gps coordinates in metres.
+
+// GitHub : 
+// BD Link : https://www.briandunning.com/cf/2658
+// Written by: jonni@me.com
+// V 1.0
