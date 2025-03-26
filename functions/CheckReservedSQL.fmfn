@@ -3,7 +3,8 @@
 // This function checks if a given keyword is an SQL reserved word or 
 // contains invalid characters, returning either an “OK” message or a warning.
 
-// Input : keyword
+// Parameters : keyword
+// Use example : CheckReservedSQL ( "Select" )
 
 Let ( [
 
@@ -48,6 +49,11 @@ Let ( [
 	
 
 )
+
+// The function takes an input keyword, converts it to uppercase, and checks if it appears in a predefined list of SQL reserved words stored 
+// in JSON format. It also examines whether the keyword contains any special characters or spaces that are not allowed. If the keyword is found 
+// in the list, it returns “Reserved”; otherwise, it returns “OK.” Additionally, if the keyword contains prohibited characters like spaces or symbols 
+// (@, #, $, etc.), the function returns an error message specifying the invalid character.
 
 // GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/cb5ef53f16e872b4fda4dd13faff146c3cb55fc8/functions/CheckReservedSQL.fmfn
 // BD Link : https://www.briandunning.com/cf/2792
