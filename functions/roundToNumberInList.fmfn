@@ -36,7 +36,7 @@ While ( [
 // Round a passed target value to the nearest number in a given list of numbers that are 
 // separated by a carriage return. Rounding up or down is determined by the operator flag 0 for down and 1 for up.
 
-// GitHub : 
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/47c1d17c7fd099bbf380bad6456121e68dd6b200/functions/roundToNumberInList.fmfn
 // BD Link : https://www.briandunning.com/cf/2751
 // Written by: jonni@me.com
 // V 1.0
