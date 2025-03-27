@@ -1,6 +1,6 @@
 // COLORIS
 
-/ Renders Coloris colour picker in a webviewer and returns colour code script declared in the third function parameter
+// Renders Coloris colour picker in a webviewer and returns colour code script declared in the third function parameter
 
 // Function Name : coloris
 // Parameters : defaultColour ; swatches ; targetScript
