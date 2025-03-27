@@ -7,6 +7,7 @@
 // Function Name : colorTint
 // Parameters : color ; tint ; output
 // Use example : colorTint ( "#7962a8" ; 50 ; "hex" )
+// Dependency : BaseConvert Custom Function by Debi Fuchs - Aptworks Consulting | https://www.briandunning.com/cf/901
 
 Let ( [
 
