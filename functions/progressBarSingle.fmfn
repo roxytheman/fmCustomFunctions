@@ -62,9 +62,7 @@ Let ( [
 
 // The output is Base64-encoded and intended for use in web viewers or for conversion into a PNG graphic.
 
-// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/108acf2d7ea0d5767229b90d28d74bf1d5771f4c/functions/passwordStrength.fmfn
-// BD Link : https://www.briandunning.com/cf/2787
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/c84842779eba9a9088a2e5a9beae4079af7e6b7a/functions/progressBarSingle.fmfn
+// BD Link : https://www.briandunning.com/cf/2800
 // Written by: jonni@me.com
 // V 1.0
-
-
