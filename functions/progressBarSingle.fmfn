@@ -1,0 +1,70 @@
+// PROGRESS BAR SINGLE
+
+// Generates a horizontal progress bar based on a single percentage 
+// value, using two custom colours to indicate completed and remaining progress.
+
+// Function Name : progressBarSingle
+// Parameters : width ; height ; radius ; colorBackground ; colorFilled ; pctFilled
+// Use example : progressBarSingle ( 400 ; 16 ; 5 ; "#FFFFFF" ; "#CDCDCD" ; 70 )
+
+Let ( [
+
+		// Base Values
+		~colorBackground = colorBackground ;
+		~colorFilled = colorFilled ;
+		~width = width ;
+		~height = height ;
+		~radius = radius ; 
+		~pctFilled = pctFilled ;
+
+		// Progress ~width
+		~filledWidth = Max ( 0 ; Min ( ~width ; Round ( ~width * ~pctFilled / 100 ; 0 ) ) ) ;
+
+		// Define the SVG string
+		~svg = 
+		"<?xml version='1.0' encoding='UTF-8'?>" & 
+		"<svg xmlns='http://www.w3.org/2000/svg' ~width='" & ~width & "' ~height='" & ~height & "'>" &
+		
+		// Remaining background bar
+		"<rect x='0' y='0' ~width='" & ~width & "' ~height='" & ~height & "' rx='" & ~radius & "' ry='" & ~radius & "' fill='" & ~colorFilled & "' />" &
+		
+		// Completed progress overlay ( with left-side rounded corners only if partial )
+
+		If ( 
+
+			~filledWidth > 0 ; 
+
+			"<clipPath id='clip'>" &
+			"<rect x='0' y='0' ~width='" & ~filledWidth & "' ~height='" & ~height & "' rx='" & ~radius & "' ry='" & ~radius & "' />" &
+			"</clipPath>" &
+			"<rect x='0' y='0' ~width='" & ~filledWidth & "' ~height='" & ~height & "' fill='" & ~colorFilled & "' clip-path='url(#clip)' />" 
+
+			;
+
+			""
+
+		) &
+		
+		"</svg>" ;
+		
+		// Base64 encode with SVG data URL prefix
+		~encodedSVG = "data:image/svg+xml;base64," & Base64Encode ( ~svg )
+
+	]; 
+
+		~encodedSVG
+)
+
+// This function produces a horizontal SVG-based progress bar that visually represents 
+// a percentage complete value between 0 and 100. The bar is rendered with two colours: 
+// one for the completed portion and another for the remaining segment. Rounded corners are applied, 
+// and the bar scales responsively to the size of the layout object if configured accordingly. 
+
+// The output is Base64-encoded and intended for use in web viewers or for conversion into a PNG graphic.
+
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/108acf2d7ea0d5767229b90d28d74bf1d5771f4c/functions/passwordStrength.fmfn
+// BD Link : https://www.briandunning.com/cf/2787
+// Written by: jonni@me.com
+// V 1.0
+
+

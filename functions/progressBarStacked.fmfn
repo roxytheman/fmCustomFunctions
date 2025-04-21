@@ -1,0 +1,98 @@
+// PROGRESS BAR STACKED
+
+// Creates a horizontal progress bar composed of multiple coloured segments, 
+// defined by a JSON input with individual percentage values.
+
+// NOTE : The segments are stacked, so make sure to order the array starting with the lowest percentages 
+
+// Function Name : progressBarStacked
+// Parameters : width ; height ; radius ; backgroundColor ; segmentArray
+// Use example : progressBarStacked ( 500 ; 16 ; 5 ; "#f4f4f4" ; $jsonArray )
+
+Let ( [
+
+		~width = width ;
+		~height = height ;
+		~radius = radius ;
+		~backgroundColor = backgroundColor ;
+		~segments = 
+
+			While ( [ 
+
+					~segmentArray = segmentArray  ;
+			
+					~count = ValueCount ( JSONListKeys ( ~segmentArray ; "stack" ) ) ;
+					~x = 0 ;
+					~result = "" ; 
+					~i = 0
+					
+				] ; 
+			
+					~i < ~count
+			
+				; [ 
+					
+					~dx = ~width * JSONGetElement ( ~segmentArray ; "stack[" & ~i & "]percent" ) / 100 ;
+					~fill = JSONGetElement ( ~segmentArray ; "stack[" & ~i & "]color" ) ;
+					~result = List ( ~result ; "<rect x='" & ~x & "' y='0' width='" & ~dx & "' height='" & 100 & "' fill='" & ~fill &  "' />" ) ;
+					~x = ~x + ~dx ;
+					~i = ~i + 1
+			
+				] ; 
+			
+			
+					~result 
+			
+			) ;
+
+		~svg = 
+
+			"<?xml version='1.0' encoding='UTF-8'?>" & 
+			"<svg xmlns='http://www.w3.org/2000/svg' width='" & ~width & "' height='" & ~height & "'>" &
+
+
+				"<clipPath id='barMask'>" &
+					"<rect x='0' y='0' width='" & ~width & "' height='" & ~height & "' rx='" & ~radius & "' ry='" & ~radius & "' />" &
+				"</clipPath>" &
+				"<rect x='0' y='0' width='" & ~width & "' height='" & ~height & "' fill='" & ~backgroundColor & "' />" &
+				"<g clip-path='url(#barMask)'>" & ~segments & "</g>" &
+
+			"</svg>" ;
+
+
+		~encodedSVG = "data:image/svg+xml;base64," & Base64Encode ( ~svg )
+
+		] ;
+
+
+			 ~encodedSVG
+
+)
+
+// This function renders a horizontal, stacked-style SVG progress bar where each segment
+// represents a distinct stage or category of progress. The segments are defined via a 
+// JSON object that specifies a colour and percentage for each part. The function calculates 
+// the relative widths and assembles each segment in sequence. A background colour fills the 
+// bar behind the segments, and rounded corners are applied through SVG clipping. 
+
+// JSON ARRAY EXAMPLE
+
+// JSONSetElement ( "" ; 
+
+//	[ "stack[+]color" ; "#211732" ; 1 ] ; 
+//	[ "stack[:]percent" ; 10 ; 2 ] ; 
+//	[ "stack[+]color" ; "#ad9fcd" ; 1 ] ; 
+//	[ "stack[:]percent" ; 20 ; 2 ] ; 
+//	[ "stack[+]color" ; "#7962a8" ; 1 ] ; 
+//	[ "stack[:]percent" ; 40 ; 2 ] ; 
+//	[ "stack[+]color" ; "#e8deee" ; 1 ] ; 
+//	[ "stack[:]percent" ; 70 ; 2 ] 
+
+//)
+
+// The result is Base64-encoded and suitable for use in container fields or web viewers within FileMaker solutions.
+
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/108acf2d7ea0d5767229b90d28d74bf1d5771f4c/functions/passwordStrength.fmfn
+// BD Link : https://www.briandunning.com/cf/2799
+// Written by: jonni@me.com
+// V 1.0
