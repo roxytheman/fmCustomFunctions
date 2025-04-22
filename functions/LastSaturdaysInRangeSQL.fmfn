@@ -1,0 +1,45 @@
+// LAST SATURDAYS IN RANGE SQL
+
+// Returns a comma-separated list of SQL-formatted dates representing 
+// the last Saturday of each month between the start and end dates.
+
+// NOTE : The segments are stacked, so make sure to order the array starting with the lowest percentages 
+
+// Function Name : LastSaturdaysInRangeSQL
+// Parameters : startDate ; endDate
+// Use example : LastSaturdaysInRangeSQL ( Get ( CurrentDate ) ; Get ( CurrentDate ) + 365 )
+
+Let ( [
+    y = Year ( startDate ) ;
+    m = Month ( startDate ) ;
+    firstOfMonth = Date ( m ; 1 ; y ) ;
+    lastOfMonth = Date ( m + 1 ; 0 ; y ) ;
+    lastDow = DayOfWeek ( lastOfMonth ) ;
+    lastSaturday = lastOfMonth - Mod ( lastDow ; 7 ) ;
+    nextMonth = Date ( m + 1 ; 1 ; y ) ;
+    sqlDate = "'" & Year ( lastSaturday ) & "-" & 
+                  Right ( "0" & Month ( lastSaturday ) ; 2 ) & "-" & 
+                  Right ( "0" & Day ( lastSaturday ) ; 2 ) & "'"
+];
+    If (
+        firstOfMonth > endDate ;
+        "" ;
+        sqlDate & 
+        Case (
+            Date ( m + 1 ; 1 ; y ) > endDate ; "" ; ", "
+        ) &
+        LastSaturdaysInRangeSQL ( nextMonth ; endDate )
+    )
+)
+
+// Generates a list of dates in SQL 'YYYY-MM-DD' format for the last Saturday 
+// of each month within a given date range. This function uses recursion to 
+// iterate through months, making it compatible with FileMaker versions prior to 
+// 18 which do not support the While function. 
+
+// The resulting list is formatted for direct use in SQL IN (...) clauses.
+
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/c84842779eba9a9088a2e5a9beae4079af7e6b7a/functions/progressBarStacked.fmfn
+// BD Link : https://www.briandunning.com/cf/2799
+// Written by: jonni@me.com
+// V 1.0
