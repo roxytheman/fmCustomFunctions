@@ -1,0 +1,34 @@
+// LAST SATURDAYS IN RANGE
+
+// Returns a return-separated list of FileMaker-formatted dates representing 
+// the last Saturday of each month between the start and end dates.
+
+// Function Name : LastSaturdaysInRange
+// Parameters : startDate ; endDate
+// Use example : LastSaturdaysInRange ( Get ( CurrentDate ) ; Get ( CurrentDate ) + 365 )
+
+Let ( [
+    y = Year ( startDate ) ;
+    m = Month ( startDate ) ;
+    firstOfMonth = Date ( m ; 1 ; y ) ;
+    lastOfMonth = Date ( m + 1 ; 0 ; y ) ;
+    lastDow = DayOfWeek ( lastOfMonth ) ;
+    lastSaturday = lastOfMonth - Mod ( lastDow ; 7 ) ;
+    nextMonth = Date ( m + 1 ; 1 ; y )
+];
+    If (
+        firstOfMonth > endDate ;
+        "" ;
+        lastSaturday & ¶ & 
+        LastSaturdaysInRange ( nextMonth ; endDate )
+    )
+)
+
+// Generates a list of dates in FileMaker Date format for the last Saturday of each 
+// month within a given date range. This function uses recursion to iterate through months, 
+// making it compatible with FileMaker versions prior to 18 which do not support the While function.
+
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/c84842779eba9a9088a2e5a9beae4079af7e6b7a/functions/progressBarStacked.fmfn
+// BD Link : https://www.briandunning.com/cf/2802
+// Written by: jonni@me.com
+// V 1.0
