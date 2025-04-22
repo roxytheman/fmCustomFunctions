@@ -11,62 +11,69 @@
 
 Let ( [
 
-		~width = width ;
-		~height = height ;
-		~radius = radius ;
-		~backgroundColor = backgroundColor ;
-		~segments = 
+	~width = width ;
+	~height = height ;
+	~radius = radius ;
+	~backgroundColor = backgroundColor ;
 
-			While ( [ 
+	~segmentCount = ValueCount ( JSONListKeys ( segmentArray ; "stack" ) ) ;
 
-					~segmentArray = segmentArray  ;
-			
-					~count = ValueCount ( JSONListKeys ( ~segmentArray ; "stack" ) ) ;
-					~x = 0 ;
-					~result = "" ; 
-					~i = 0
-					
-				] ; 
-			
-					~i < ~count
-			
-				; [ 
-					
-					~dx = ~width * JSONGetElement ( ~segmentArray ; "stack[" & ~i & "]percent" ) / 100 ;
-					~fill = JSONGetElement ( ~segmentArray ; "stack[" & ~i & "]color" ) ;
-					~result = List ( ~result ; "<rect x='" & ~x & "' y='0' width='" & ~dx & "' height='" & 100 & "' fill='" & ~fill &  "' />" ) ;
-					~x = ~x + ~dx ;
-					~i = ~i + 1
-			
-				] ; 
-			
-			
-					~result 
-			
-			) ;
+	~segments = 
+		While ( [ 
+			~i = 0 ;
+			~x = 0 ;
+			~result = "" 
+		] ; 
 
-		~svg = 
+			~i < ~segmentCount ;
 
-			"<?xml version='1.0' encoding='UTF-8'?>" & 
-			"<svg xmlns='http://www.w3.org/2000/svg' width='" & ~width & "' height='" & ~height & "'>" &
+		[ 
+			~segment = JSONGetElement ( segmentArray ; "stack[" & ~i & "]" ) ;
+			~pct = JSONGetElement ( ~segment ; "percent" ) ;
+			~dx = ~width * ~pct / 100 ;
+			~fill = JSONGetElement ( ~segment ; "color" ) ;
 
+			// Determine if it's the first or last segment
+			~rxLeft = If ( ~i = 0 ; ~radius ; 0 ) ;
+			~rxRight = If ( ~i = ~segmentCount - 1 ; ~radius ; 0 ) ;
 
-				"<clipPath id='barMask'>" &
-					"<rect x='0' y='0' width='" & ~width & "' height='" & ~height & "' rx='" & ~radius & "' ry='" & ~radius & "' />" &
-				"</clipPath>" &
-				"<rect x='0' y='0' width='" & ~width & "' height='" & ~height & "' fill='" & ~backgroundColor & "' />" &
-				"<g clip-path='url(#barMask)'>" & ~segments & "</g>" &
+			// SVG rectangle with conditional rounded corners
+			~rect = 
+				"<rect x='" & ~x & "' y='0' width='" & ~dx & "' height='" & ~height & 
+				"' rx='" & ~rxLeft & "' ry='" & ~rxLeft & 
+				"' style='border-top-right-radius:" & ~rxRight & 
+				"px; border-bottom-right-radius:" & ~rxRight & 
+				"px' fill='" & ~fill & "' />" ;
 
-			"</svg>" ;
+			~result = List ( ~result ; ~rect ) ;
+			~x = ~x + ~dx ;
+			~i = ~i + 1
+		] ; 
 
+		~result 
+	) ;
 
-		~encodedSVG = "data:image/svg+xml;base64," & Base64Encode ( ~svg )
+	// Final SVG structure
+	~svg = 
+	"<?xml version='1.0' encoding='UTF-8'?>" & 
+	"<svg xmlns='http://www.w3.org/2000/svg' width='" & ~width & "' height='" & ~height & "'>" &
 
-		] ;
+		// Outer clip path still applies to everything
+		"<clipPath id='barMask'>" &
+			"<rect x='0' y='0' width='" & ~width & "' height='" & ~height & "' rx='" & ~radius & "' ry='" & ~radius & "' />" &
+		"</clipPath>" &
 
+		"<rect x='0' y='0' width='" & ~width & "' height='" & ~height & "' fill='" & ~backgroundColor & "' />" &
 
-			 ~encodedSVG
+		"<g clip-path='url(#barMask)'>" & ~segments & "</g>" &
 
+	"</svg>" ;
+
+	~encodedSVG = "data:image/svg+xml;base64," & Base64Encode ( ~svg )
+
+] ;
+
+	~encodedSVG
 )
 
 // This function renders a horizontal, stacked-style SVG progress bar where each segment

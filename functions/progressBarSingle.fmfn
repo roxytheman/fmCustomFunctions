@@ -22,30 +22,26 @@ Let ( [
 
 		// Define the SVG string
 		~svg = 
-		"<?xml version='1.0' encoding='UTF-8'?>" & 
-		"<svg xmlns='http://www.w3.org/2000/svg' ~width='" & ~width & "' ~height='" & ~height & "'>" &
 		
-		// Remaining background bar
-		"<rect x='0' y='0' ~width='" & ~width & "' ~height='" & ~height & "' rx='" & ~radius & "' ry='" & ~radius & "' fill='" & ~colorFilled & "' />" &
-		
-		// Completed progress overlay ( with left-side rounded corners only if partial )
-
-		If ( 
-
-			~filledWidth > 0 ; 
-
-			"<clipPath id='clip'>" &
-			"<rect x='0' y='0' ~width='" & ~filledWidth & "' ~height='" & ~height & "' rx='" & ~radius & "' ry='" & ~radius & "' />" &
-			"</clipPath>" &
-			"<rect x='0' y='0' ~width='" & ~filledWidth & "' ~height='" & ~height & "' fill='" & ~colorFilled & "' clip-path='url(#clip)' />" 
-
-			;
-
-			""
-
-		) &
-		
-		"</svg>" ;
+			"<?xml version='1.0' encoding='UTF-8'?>" & 
+			"<svg xmlns='http://www.w3.org/2000/svg' width='" & ~width & "' height='" & ~height & "'>" &
+			
+				// Background bar
+				"<rect x='0' y='0' width='" & ~width & "' height='" & ~height & "' rx='" & ~radius & "' ry='" & ~radius & "' fill='" & ~colorBackground & "' />" &
+			
+				// Filled progress bar
+				If ( 
+					~filledWidth > 0 ; 
+			
+					"<clipPath id='clip'>" &
+						"<rect x='0' y='0' width='" & ~filledWidth & "' height='" & ~height & "' rx='" & ~radius & "' ry='" & ~radius & "' />" &
+					"</clipPath>" &
+					"<rect x='0' y='0' width='" & ~filledWidth & "' height='" & ~height & "' fill='" & ~colorFilled & "' clip-path='url(#clip)' />" ;
+			
+					""
+				) &
+			
+			"</svg>" ;
 		
 		// Base64 encode with SVG data URL prefix
 		~encodedSVG = "data:image/svg+xml;base64," & Base64Encode ( ~svg )
