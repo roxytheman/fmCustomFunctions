@@ -5,7 +5,7 @@
 
 // Function Name : pillCloud
 // Parameters : width ; height ; defaultArray ; pillArray
-// Use example : progressBarSingle ( 400 ; 400 ; $defaultArray ; $pillArray )
+// Use example : pillCloud ( 400 ; 400 ; $defaultArray ; $pillArray )
 
 // Note : See structure and syntax for defaultArray and pillArray below
 
