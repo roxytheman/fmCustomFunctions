@@ -1,0 +1,177 @@
+// PILL CLOUD
+
+// Generates a responsive SVG-based group of pill-shaped chips 
+// from a JSON configuration, suitable for use in a Web Viewer.
+
+// Function Name : pillCloud
+// Parameters : width ; height ; defaultArray ; pillArray
+// Use example : progressBarSingle ( 400 ; 400 ; $defaultArray ; $pillArray )
+
+// Note : See structure and syntax for defaultArray and pillArray below
+
+
+Let ( [
+
+	// Inputs
+	~svgWidth = width ;
+	~svgHeight = height ;
+	
+	// Defaults
+	~defaults = JSONGetElement ( defaultArray ; "default" ) ;
+	~pillArray = JSONGetElement ( pillArray ; "pill" ) ;
+	~pillCount = ValueCount ( JSONListKeys ( pillArray ; "pill" ) ) ;
+	
+	~defaultBackgroundColor = If ( IsEmpty ( JSONGetElement ( ~defaults ; "color.background" ) ) ; "#FFFFFF" ; JSONGetElement ( ~defaults ; "color.background" ) ) ;
+	~defaultFillColor = JSONGetElement ( ~defaults ; "color.fill" ) ;
+	~defaultBorderColor = JSONGetElement ( ~defaults ; "color.border" ) ;
+	~defaultStroke = JSONGetElement ( ~defaults ; "border.stroke" ) ;
+	~defaultFontSize = JSONGetElement ( ~defaults ; "font.size" ) ;
+	~defaultFontWeight = JSONGetElement ( ~defaults ; "font.weight" ) ;
+	~defaultFontName = JSONGetElement ( ~defaults ; "font.name" ) ;
+	~defaultRadius = JSONGetElement ( ~defaults ; "radius" ) ;
+	
+	~marginH = JSONGetElement ( ~defaults ; "margin.horizontal" ) ;
+	~marginV = JSONGetElement ( ~defaults ; "margin.vertical" ) ;
+	~spacingH = JSONGetElement ( ~defaults ; "spacing.horizontal" ) ;
+	~spacingV = JSONGetElement ( ~defaults ; "spacing.vertical" ) ;
+	~paddingH = If ( IsEmpty ( JSONGetElement ( ~defaults ; "padding.horizontal" ) ) ; 10 ; JSONGetElement ( ~defaults ; "padding.horizontal" ) ) ;
+	~paddingV = If ( IsEmpty ( JSONGetElement ( ~defaults ; "padding.vertical" ) ) ; 10 ; JSONGetElement ( ~defaults ; "padding.vertical" ) ) ;
+
+	// Generate SVG pills
+	~loopResult = 
+
+	While ( [
+	
+			~i = 0 ;
+			~x = ~marginH ;
+			~y = ~marginV ;
+			~svgResult = "" ;
+			~maxY = 0
+		
+		] ;
+		
+			~i < ~pillCount ;
+		
+		[ 
+		
+			~pill = JSONGetElement ( ~pillArray ; "[" & ~i & "]" ) ;
+			~text = JSONGetElement ( ~pill ; "text" ) ;
+			
+			~fill = JSONGetElement ( ~pill ; "color.background" ) ;
+			~borderColor = JSONGetElement ( ~pill ; "color.border" ) ;
+			~stroke = JSONGetElement ( ~pill ; "border.stroke" ) ;
+			
+			~fontName = JSONGetElement ( ~pill ; "font.name" ) ;
+			~fontSize = JSONGetElement ( ~pill ; "font.size" ) ;
+			~fontWeight = JSONGetElement ( ~pill ; "font.weight" ) ;
+			~fontColor = If ( IsEmpty ( JSONGetElement ( ~pill ; "font.color" ) ) ; If ( IsEmpty ( ~defaultFontName ) ; "black" ; ~defaultFontName ) ; JSONGetElement ( ~pill ; "font.color" ) ) ;
+			
+			~fill = If ( IsEmpty ( ~fill ) ; ~defaultFillColor ; ~fill ) ;
+			~borderColor = If ( IsEmpty ( ~borderColor ) ; ~defaultBorderColor ; ~borderColor ) ;
+			~stroke = If ( IsEmpty ( ~stroke ) ; ~defaultStroke ; ~stroke ) ;
+			~fontName = If ( IsEmpty ( ~fontName ) ; ~defaultFontName ; ~fontName ) ;
+			~fontSize = If ( IsEmpty ( ~fontSize ) ; ~defaultFontSize ; ~fontSize ) ;
+			~fontWeight = If ( IsEmpty ( ~fontWeight ) ; ~defaultFontWeight ; ~fontWeight ) ;
+			
+			~charWidth = ~fontSize * .6 ;
+			~textWidth = Length ( ~text ) * ~charWidth ;
+			
+			~pillWidth = ~textWidth + ( 2 * ~paddingH ) ;
+			~pillHeight = ~fontSize + ( 2 * ~paddingV ) ;
+			~radius = If ( IsEmpty ( JSONGetElement ( ~pill ; "radius" ) ) ; If ( JSONGetElement ( ~defaults ; "radius" ) ; ~pillHeight / 2 ) ; JSONGetElement ( ~pill ; "radius" ) ) ;
+			
+			// Wrap if exceeds row
+			~x = If ( ~x + ~pillWidth > ~svgWidth ; ~marginH ; ~x ) ;
+			~y = If ( ~x = ~marginH and ~i > 0 ; ~y + ~pillHeight + ~spacingV ; ~y ) ;
+			~maxY = Max ( ~maxY ; ~y + ~pillHeight ) ;
+			
+			~rect = 
+			"<rect x='" & ~x & "' y='" & ~y & "' width='" & ~pillWidth & "' height='" & ~pillHeight & "' rx='" & ~radius & "' ry='" & ~radius & "' fill='" & ~fill & "' stroke='" & ~borderColor & "' stroke-width='" & ~stroke & "' />" ;
+			
+			~textElement =
+			"<text x='" & ( ~x + ~pillWidth / 2 ) & "' y='" & ( ~y + ~pillHeight / 2 + ~fontSize / 3 ) & "' text-anchor='middle' font-family='" & ~fontName & "' font-size='" & ~fontSize & "' font-weight='" & ~fontWeight & "' fill='" & ~fontColor & "'>" & ~text & "</text>" ;
+			
+			~svgResult = List ( ~svgResult ; ~rect & ~textElement ) ;
+			~x = ~x + ~pillWidth + ~spacingH ;
+			~i = ~i + 1
+
+		] ;
+		
+			JSONSetElement ( "" ;
+			
+				[ "svg" ; ~svgResult ; 1 ] ;
+				[ "maxY" ; ~maxY ; 2 ]
+		
+			)
+	
+	) ;
+
+		~svgContent = JSONGetElement ( ~loopResult ; "svg" ) ;
+		~viewHeight = Max ( ~svgHeight ; JSONGetElement ( ~loopResult ; "maxY" ) + ~marginV ) ;
+		
+		~svgHeader = "<?xml version='1.0' encoding='UTF-8'?>" &
+		"<svg xmlns='http://www.w3.org/2000/svg' width='" & ~svgWidth & "' height='" & ~viewHeight & "' viewBox='0 0 " & ~svgWidth & " " & ~viewHeight & "'>" &
+		"<rect width='100%' height='100%' fill='" & ~defaultBackgroundColor & "' />"
+
+	] ;
+
+		"data:image/svg+xml;utf8," & Substitute ( ~svgHeader & ~svgContent & "</svg>" ; "¶" ; "" )
+
+)
+
+// This function builds a dynamic, multi-line set of pill-shaped chips using SVG, based on a 
+// structured JSON payload. Each chip can display custom text and support individual background 
+// colours, borders, and font styles, while inheriting defaults for easy styling. Chips are 
+// automatically laid out horizontally and wrapped onto multiple lines based on the specified 
+// Web Viewer width and height, making this ideal for flexible tag or category displays inside 
+// FileMaker solutions.
+
+// Default Array Example
+
+// JSONSetElement ( "" ; 
+// 
+// 		[ "default.border.stroke" ; 1 ; 2 ] ;
+// 		[ "default.color.background" ; "#FFFFFF" ; 1 ] ;
+// 		[ "default.color.fill" ; "#FFFFFF" ; 1 ] ;
+// 		[ "default.color.border" ; "#000000" ; 1 ] ;
+// 		[ "default.font.name" ; "Helvetica Neue" ; 1 ] ;
+// 		[ "default.font.size" ; 12 ; 2 ] ;
+// 		[ "default.font.weight" ; "Regular" ; 1 ] ;
+// 		[ "default.margin.horizontal" ; 15 ; 2 ] ;
+// 		[ "default.margin.vertical" ; 10 ; 2 ] ;
+// 		[ "default.spacing.horizontal" ; 7 ; 2 ] ;
+// 		[ "default.spacing.vertical" ; 7 ; 2 ] ;
+// 		[ "default.padding.horizontal" ; 5 ; 2 ] ;
+// 		[ "default.padding.vertical" ; 5 ; 2 ] ;
+// 		[ "default.radius" ; 5 ; 2 ] 
+// 
+// )
+
+// Pill Array Example
+
+// JSONSetElement ( "" ; 
+// 
+// 		[ "pill[+]border.stroke" ; 1 ; 2 ] ;
+// 		[ "pill[:]color.border" ; "#000000" ; 1 ] ;
+// 		[ "pill[:]color.background" ; "#FFC0CB" ; 1 ] ;
+// 		[ "pill[:]text" ; "Strawberry" ; 1 ] ;
+// 		[ "pill[:]font.name" ; "Comic Sans" ; 1 ] ;
+// 
+// 		[ "pill[+]border.stroke" ; 0 ; 2 ] ;
+// 		[ "pill[:]color.background" ; "#F5DEB3" ; 1 ] ;
+// 		[ "pill[:]text" ; "Vanilla" ; 1 ] ;
+// 		[ "pill[:]font.size" ; 14 ; 2 ] ;
+// 		[ "pill[:]font.weight" ; "Bold" ; 1 ] ;
+// 
+// 		[ "pill[+]border.stroke" ; 0 ; 2 ] ;
+// 		[ "pill[:]color.background" ; "#3E2C23" ; 1 ] ;
+// 		[ "pill[:]text" ; "Chocolate" ; 1 ] ;
+// 		[ "pill[:]ont.color" ; "white" ; 1 ] 
+// 	
+// )
+
+
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/c84842779eba9a9088a2e5a9beae4079af7e6b7a/functions/progressBarSingle.fmfn
+// BD Link : https://www.briandunning.com/cf/2803
+// Written by: jonni@me.com
+// V 1.0
