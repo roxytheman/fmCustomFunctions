@@ -1,0 +1,113 @@
+// PROGRESS DOUGHNUT
+
+// Generates a customisable, rounded progress doughnut 
+// using SVG for display in a FileMaker Web Viewer.
+
+// Function Name : progressDoughNut
+// Parameters : width ; height ; defaultArray ; dataArray
+// Use example : progressDoughNut ( 400 ; 400 ; $defaultArray ; $dataArray )
+
+// Note : See structure and syntax for defaultArray and dataArray below
+
+
+Let ( [
+
+	~d = dataArray ;
+	~def = defaultArray ;
+	
+	// Core values
+	~value = Min ( 100 ; Max ( 0 ; JSONGetElement ( ~d ; "value" ) ) ) ;
+	~displayValue = JSONGetElement ( ~def ; "displayValue" ) ;
+	~text = If( ~value < 100 ; Round ( ~value ; 0 ) & "%" ; JSONGetElement( ~def ; "text.complete" ) ) ;
+	
+	// Radius setup
+	~center = Min ( width ; height ) / 2 ;
+	~stroke = JSONGetElement ( ~def ; "stroke" ) ;
+	~endCap = JSONGetElement ( ~def ; "endCap" ) ;
+	~r = ~center - ( ~stroke / 2 ) ;
+	~circ = 2 * Pi * ~r ;
+	~dashOffset = ~circ * ( 1 - ( ~value / 100 ) ) ;
+	
+	// Colours
+	~bgRing = JSONGetElement ( ~def ; "color.background" ) ;
+	~fgRing = If( ~value < 100 ; JSONGetElement ( ~def ; "color.foreground" ) ;  JSONGetElement ( ~def ; "color.complete" ) )  ; 
+	~backgroundColor = JSONGetElement ( ~def ; "background.fill" ) ;
+	~textColor = JSONGetElement ( ~def ; "color.text" ) ;
+	
+	// Font settings
+	~fontSize = JSONGetElement ( ~def ; "font.size" ) ;
+	~fontWeight = JSONGetElement ( ~def ; "font.weight" ) ;
+	~fontName = JSONGetElement ( ~def ; "font.name" ) ;
+	
+	// Background rect
+	~bgRect = 
+		"<rect width='" & width & "' height='" & height & "' fill='" & ~backgroundColor & "' />" ;
+	
+	// Full circle (background)
+	~circleBg = 
+		"<circle cx='" & ~center & "' cy='" & ~center & "' r='" & ~r & "' fill='none' stroke='" & ~bgRing & "' stroke-width='" & ~stroke & "' />" ;
+	
+	// Foreground arc (progress)
+	~circleFg = 
+	  "<circle cx='" & ~center & "' cy='" & ~center & "' r='" & ~r & "' fill='none' stroke='" & ~fgRing & "' stroke-width='" & ~stroke & "' stroke-dasharray='" & ~circ & "' stroke-dashoffset='" & ~dashOffset & "' stroke-linecap='" & ~endCap & "' transform='rotate(-90 " & ~center & " " & ~center & ")' />" ;
+	
+	// Percentage text
+	~text = 
+		"<text x='" & ~center & "' y='" & ( ~center + ( ~fontSize / 3 ) ) & "' text-anchor='middle' font-family='" & ~fontName & "' font-size='" & ~fontSize & "' font-weight='" & ~fontWeight & "' fill='" & ~textColor & "'>" & ~text & "</text>" ;
+	
+	// Assemble full SVG
+	~svg = 
+		"<?xml version='1.0' encoding='UTF-8'?>" &
+		"<svg xmlns='http://www.w3.org/2000/svg' width='" & width & "' height='" & height & "' viewBox='0 0 " & width & " " & height & "'>" &
+		~bgRect &
+		~circleBg &
+		~circleFg &
+		If ( ~displayValue = True ; ~text ) &
+		"</svg>"
+
+	] ;
+
+		"data:image/svg+xml;utf8," & Substitute ( ~svg ; "¶" ; "" )
+
+)
+
+// This function creates a circular progress indicator rendered in SVG, using JSON-driven settings 
+// for colours, stroke width, font, and layout. The arc fills based on a percentage value and features 
+// smooth, rounded ends for a polished look. Perfect for visualising completion or status inside FileMaker 
+// layouts with no HTML required.
+
+// Default Array Example
+
+//	JSONSetElement ( "" ; 
+//	
+//		[ "color.background" ; "#CCCCCC" ; 1 ] ;
+//		[ "color.foreground" ; "#CB4400" ; 1 ] ;
+//		[ "color.text" ; "#000000" ; 1 ] ;
+//		[ "color.complete" ; "green" ; 1 ] ;
+//	
+//		[ "stroke" ; 20 ; 2 ] ;
+//		[ "endCap" ; "" ; 1 ] ; // round, butt, square - or empty
+//	
+//		[ "font.size" ; 24 ; 2 ] ;
+//		[ "font.weight" ; "bold" ; 1 ] ;
+//		[ "font.name" ; "Helvetica Neue" ; 1 ] ;
+//	
+//		[ "background.fill" ; "#FFFFFF" ; 1 ] ;
+//		[ "displayValue" ; True ; 5 ] ;
+//		[ "text.complete" ; "Done" ; 1 ]
+//	
+//	)
+
+// Data Array Example
+
+//	JSONSetElement ( "" ; 
+//
+//	 	[ "value" ; 58 ; 2 ]
+//	
+//	)
+
+
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/50d010f9885f7ae18e5ad4327545e5ac5912a929/functions/pillCloud.fmfn
+// BD Link : https://www.briandunning.com/cf/2805
+// Written by: jonni@me.com
+// V 1.0
