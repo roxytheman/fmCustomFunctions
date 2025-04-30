@@ -10,7 +10,7 @@ Let (
  
 	[ 
 
-		~uuid = Filter ( uuidString ; "abcdef0123456789-" ) ; // uuid string
+		~uuid = Filter ( uuidString ; "abcdefABCDEF0123456789-" ) ; // uuid string
 		~subbed = Substitute ( ~uuid ; "-" ; "¶" ) ; // split char groups into 5 lines
 		~t1 = If ( Length ( GetValue ( ~subbed ; 1 ) ) = 8 ; True ; False ) ; // group 1 should be 8 chars
 		~t2 = If ( Length ( GetValue ( ~subbed ; 2 ) ) = 4 ; True ; False ) ; // group 2 should be 4 chars
