@@ -19,10 +19,13 @@ Let ( [
 	~value = Min ( 100 ; Max ( 0 ; JSONGetElement ( ~d ; "value" ) ) ) ;
 	~displayValue = JSONGetElement ( ~def ; "displayValue" ) ;
 	~text = If( ~value < 100 ; Round ( ~value ; 0 ) & "%" ; JSONGetElement( ~def ; "text.complete" ) ) ;
+	~width = Round ( width * ( 100 / Get ( WindowZoomLevel ) ) ; 0 ) ;
+	~height = Round ( height * ( 100 / Get ( WindowZoomLevel ) ) ; 0 ) ;
+	~scaleFix = 1 ;
 	
 	// Radius setup
-	~center = Min ( width ; height ) / 2 ;
-	~stroke = JSONGetElement ( ~def ; "stroke" ) ;
+	~center = ~width / 2 ;
+	~stroke = If( Get( Device ) > 2 ; JSONGetElement ( ~def ; "stroke" ) / 1 ; JSONGetElement ( ~def ; "stroke" ) ) ;
 	~endCap = JSONGetElement ( ~def ; "endCap" ) ;
 	~r = ~center - ( ~stroke / 2 ) ;
 	~circ = 2 * Pi * ~r ;
@@ -35,13 +38,13 @@ Let ( [
 	~textColor = JSONGetElement ( ~def ; "color.text" ) ;
 	
 	// Font settings
-	~fontSize = JSONGetElement ( ~def ; "font.size" ) ;
+	~fontSize = If( Get( Device ) > 2 ; JSONGetElement ( ~def ; "font.size" ) / 1 ; JSONGetElement ( ~def ; "font.size" ) ) ;
 	~fontWeight = JSONGetElement ( ~def ; "font.weight" ) ;
 	~fontName = JSONGetElement ( ~def ; "font.name" ) ;
 	
 	// Background rect
 	~bgRect = 
-		"<rect width='" & width & "' height='" & height & "' fill='" & ~backgroundColor & "' />" ;
+		"<rect width='" & ~width & "' height='" & ~height & "' fill='" & ~backgroundColor & "' />" ;
 	
 	// Full circle (background)
 	~circleBg = 
@@ -56,9 +59,16 @@ Let ( [
 		"<text x='" & ~center & "' y='" & ( ~center + ( ~fontSize / 3 ) ) & "' text-anchor='middle' font-family='" & ~fontName & "' font-size='" & ~fontSize & "' font-weight='" & ~fontWeight & "' fill='" & ~textColor & "'>" & ~text & "</text>" ;
 	
 	// Assemble full SVG
-	~svg = 
+		~svg = 
 		"<?xml version='1.0' encoding='UTF-8'?>" &
-		"<svg xmlns='http://www.w3.org/2000/svg' width='" & width & "' height='" & height & "' viewBox='0 0 " & width & " " & height & "'>" &
+
+		If ( Get(Device) > 2 ; 
+
+			"<svg xmlns=\"http://www.w3.org/2000/svg\" style=\"width:100%;height:100%; \"viewBox=\"0 0 " & ~width & " " & ~height & "\" preserveAspectRatio=\"xMidYMid meet\">"  ;
+			"<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%' viewBox='0 0 " & ~width & " " & ~height & "'>" 
+
+		) &
+		
 		~bgRect &
 		~circleBg &
 		~circleFg &
@@ -67,12 +77,29 @@ Let ( [
 
 	] ;
 
-		"data:image/svg+xml;utf8," & Substitute ( ~svg ; "¶" ; "" )
+		Case ( 
+
+			PatternCount ( Get ( ApplicationVersion ) ; "Web" ) ;
+			"data:image/svg+xml;base64," & Base64Encode ( Substitute ( ~svg ; "¶" ; "" ) ) ;
+
+			Get( Device ) > 2 ;
+
+						"data:text/html," & 
+
+				"<html>
+				<meta name=\"viewport\" content=\"width=device-width, initial-scale=" & ~scaleFix & ", maximum-scale=" & ~scaleFix & ", user-scalable=no\">
+				  <body style=\"margin:0;padding:0;background:#" & ~backgroundColor & ";\">"
+				     & ~svg &
+				  "</body>
+				</html>" ;
+
+			"data:image/svg+xml;utf8," & Substitute ( ~svg ; "¶" ; "" )
+		)
 
 )
 
 // This function creates a circular progress indicator rendered in SVG, using JSON-driven settings 
-// for colours, stroke width, font, and layout. The arc fills based on a percentage value and features 
+// for colours, stroke width, font, and layout. The arc fills /based on a percentage value and features 
 // smooth, rounded ends for a polished look. Perfect for visualising completion or status inside FileMaker 
 // layouts with no HTML required.
 
@@ -110,4 +137,4 @@ Let ( [
 // GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/856e74f51e52ffa31614fa1c305e789ca88b78d1/functions/progressDoughNut.fmfn
 // BD Link : https://www.briandunning.com/cf/2805
 // Written by: jonni@me.com
-// V 1.0
+// V 1.4

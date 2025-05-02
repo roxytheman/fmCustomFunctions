@@ -12,10 +12,11 @@ Let ( [
 		// Base Values
 		~colorBackground = colorBackground ;
 		~colorFilled = colorFilled ;
-		~width = width ;
-		~height = height ;
+		~width = Round ( width * ( 100 / Get ( WindowZoomLevel ) ) ; 0 ) ;
+		~height = Round ( height * ( 100 / Get ( WindowZoomLevel ) ) ; 0 ) ;
 		~radius = radius ; 
 		~pctFilled = pctFilled ;
+		~scaleFix = 1 ; 
 
 		// Progress ~width
 		~filledWidth = Max ( 0 ; Min ( ~width ; Round ( ~width * ~pctFilled / 100 ; 0 ) ) ) ;
@@ -24,7 +25,14 @@ Let ( [
 		~svg = 
 		
 			"<?xml version='1.0' encoding='UTF-8'?>" & 
-			"<svg xmlns='http://www.w3.org/2000/svg' width='" & ~width & "' height='" & ~height & "'>" &
+
+
+				If ( Get(Device) > 2 ; 
+		
+					"<svg xmlns=\"http://www.w3.org/2000/svg\" style=\"width:100%;height:100%; \"viewBox=\"0 0 " & ~width & " " & ~height & "\" preserveAspectRatio=\"xMidYMid meet\">"  ;
+					"<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%' viewBox='0 0 " & ~width & " " & ~height & "'>" 
+		
+				) &
 			
 				// Background bar
 				"<rect x='0' y='0' width='" & ~width & "' height='" & ~height & "' rx='" & ~radius & "' ry='" & ~radius & "' fill='" & ~colorBackground & "' />" &
@@ -41,14 +49,27 @@ Let ( [
 					""
 				) &
 			
-			"</svg>" ;
-		
-		// Base64 encode with SVG data URL prefix
-		~encodedSVG = "data:image/svg+xml;base64," & Base64Encode ( ~svg )
+			"</svg>" 
 
 	]; 
 
-		~encodedSVG
+		Case ( 
+			PatternCount ( Get ( ApplicationVersion ) ; "Web" ) ;
+			"data:image/svg+xml;base64," & Base64Encode ( Substitute ( ~svg ; "¶" ; "" ) ) ;
+
+			Get( Device ) > 2 ;
+
+						"data:text/html," & 
+
+				"<html>
+				<meta name=\"viewport\" content=\"width=device-width, initial-scale=" & ~scaleFix & ", maximum-scale=" & ~scaleFix & ", user-scalable=no\">
+				  <body style=\"margin:0;padding:0;background:#" & ~colorBackground & ";\">"
+				     & ~svg &
+				  "</body>
+				</html>" ;
+
+			"data:image/svg+xml;utf8," & Substitute ( ~svg ; "¶" ; "" )
+		)
 )
 
 // This function produces a horizontal SVG-based progress bar that visually represents 
@@ -61,4 +82,4 @@ Let ( [
 // GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/c84842779eba9a9088a2e5a9beae4079af7e6b7a/functions/progressBarSingle.fmfn
 // BD Link : https://www.briandunning.com/cf/2800
 // Written by: jonni@me.com
-// V 1.0
+// V 1.2

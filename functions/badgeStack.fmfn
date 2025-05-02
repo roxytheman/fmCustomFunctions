@@ -20,6 +20,9 @@ Let ( [
 	// Defaults
 	~radius = JSONGetElement ( ~default ; "radius" ) ;
 	~diameter = ~radius * 2 ;
+	~width = Round ( width * ( 100 / Get ( WindowZoomLevel ) ) ; 0 ) ;
+	~height = Round ( height * ( 100 / Get ( WindowZoomLevel ) ) ; 0 ) ;
+	~scaleFix = 1 ; // Round( 100 / Get ( WindowZoomLevel ) ; 0 ) ;
 	
 	~fontSize = JSONGetElement ( ~default ; "font.size" ) ;
 	~fontWeight = JSONGetElement ( ~default ; "font.weight" ) ;
@@ -32,7 +35,7 @@ Let ( [
 	~offset = ~diameter - ~overlap ;
 	
 	~backgroundColor = JSONGetElement ( ~default ; "background.fill" ) ;
-	~backgroundRect = "<rect width='" & width & "' height='" & height & "' fill='" & ~backgroundColor & "' />" ;
+	~backgroundRect = "<rect width='" & ~width & "' height='" & ~height & "' fill='" & ~backgroundColor & "' />" ;
 	
 	// Loop to generate badge SVGs in reverse order
 	~badgeContent =
@@ -74,14 +77,37 @@ Let ( [
 		~svg =
 		
 		"<?xml version='1.0' encoding='UTF-8'?>" &
-		"<svg xmlns='http://www.w3.org/2000/svg' width='" & width & "' height='" & height & "' viewBox='0 0 " & width & " " & height & "'>" &
+
+		If ( Get(Device) > 2 ; 
+
+			"<svg xmlns=\"http://www.w3.org/2000/svg\" style=\"width:100%;height:100%; \"viewBox=\"0 0 " & ~width & " " & ~height & "\" preserveAspectRatio=\"xMidYMid meet\">"  ;
+			"<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%' viewBox='0 0 " & ~width & " " & ~height & "'>" 
+
+		) &
+
 		~backgroundRect &
 		~badgeContent &
 		"</svg>"
 		
 		] ;
 		
-		"data:image/svg+xml;utf8," & Substitute ( ~svg ; "¶" ; "" )
+		Case ( 
+			PatternCount ( Get ( ApplicationVersion ) ; "Web" ) ;
+			"data:image/svg+xml;base64," & Base64Encode ( Substitute ( ~svg ; "¶" ; "" ) ) ;
+
+				Get( Device ) > 2 ;
+
+						"data:text/html," & 
+
+				"<html>
+				<meta name=\"viewport\" content=\"width=device-width, initial-scale=" & ~scaleFix & ", maximum-scale=" & ~scaleFix & ", user-scalable=no\">
+				  <body style=\"margin:0;padding:0;background:#" & ~backgroundColor & ";\">"
+				     & Substitute ( ~svg ; "¶" ; "" ) &
+				  "</body>
+				</html>" ;
+
+			"data:image/svg+xml;utf8," & Substitute ( ~svg ; "¶" ; "" )
+		)
 
 )
 
@@ -122,4 +148,4 @@ Let ( [
 // GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/7ca5a986a7edd44f740f7edb8a65fd198a018d97/functions/badgeStack.fmfn
 // BD Link : https://www.briandunning.com/cf/2804
 // Written by: jonni@me.com
-// V 1.0
+// V 1.3

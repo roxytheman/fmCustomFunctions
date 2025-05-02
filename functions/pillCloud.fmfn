@@ -5,7 +5,7 @@
 
 // Function Name : pillCloud
 // Parameters : width ; height ; defaultArray ; pillArray
-// Use example : pillCloud ( 400 ; 400 ; $defaultArray ; $pillArray )
+// Use example : progressBarSingle ( 400 ; 400 ; $defaultArray ; $pillArray )
 
 // Note : See structure and syntax for defaultArray and pillArray below
 
@@ -13,8 +13,9 @@
 Let ( [
 
 	// Inputs
-	~svgWidth = width ;
-	~svgHeight = height ;
+	~svgWidth = Round ( width * ( 100 / Get ( WindowZoomLevel ) ) ; 0 ) ;
+	~svgHeight = Round ( height * ( 100 / Get ( WindowZoomLevel ) ) ; 0 ) ;
+	~scaleFix = 1 ; 
 	
 	// Defaults
 	~defaults = JSONGetElement ( defaultArray ; "default" ) ;
@@ -110,12 +111,36 @@ Let ( [
 		~viewHeight = Max ( ~svgHeight ; JSONGetElement ( ~loopResult ; "maxY" ) + ~marginV ) ;
 		
 		~svgHeader = "<?xml version='1.0' encoding='UTF-8'?>" &
-		"<svg xmlns='http://www.w3.org/2000/svg' width='" & ~svgWidth & "' height='" & ~viewHeight & "' viewBox='0 0 " & ~svgWidth & " " & ~viewHeight & "'>" &
+
+		If ( Get(Device) > 2 ; 
+
+			"<svg xmlns=\"http://www.w3.org/2000/svg\" style=\"width:100%;height:100%; \"viewBox=\"0 0 " & ~svgWidth & " " & ~svgHeight & "\" preserveAspectRatio=\"xMidYMid meet\">"  ;
+			"<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%' viewBox='0 0 " & ~svgWidth & " " & ~svgHeight & "'>" 
+
+		) &
+
 		"<rect width='100%' height='100%' fill='" & ~defaultBackgroundColor & "' />"
 
 	] ;
 
-		"data:image/svg+xml;utf8," & Substitute ( ~svgHeader & ~svgContent & "</svg>" ; "¶" ; "" )
+
+		Case ( 
+			PatternCount ( Get ( ApplicationVersion ) ; "Web" ) ;
+			"data:image/svg+xml;base64," & Base64Encode ( Substitute ( ~svgHeader & ~svgContent & "</svg>" ; "¶" ; "" ) ) ;
+
+				Get( Device ) > 2 ;
+
+						"data:text/html," & 
+
+				"<html>
+				<meta name=\"viewport\" content=\"width=device-width, initial-scale=" & ~scaleFix & ", maximum-scale=" & ~scaleFix & ", user-scalable=no\">
+				  <body style=\"margin:0;padding:0;background:#" & ~defaultBackgroundColor & ";\">"
+				     & Substitute ( ~svgHeader & ~svgContent & "</svg>" ; "¶" ; "" ) &
+				  "</body>
+				</html>" ;
+
+			"data:image/svg+xml;utf8," & Substitute ( ~svgHeader & ~svgContent & "</svg>" ; "¶" ; "" )
+		)
 
 )
 
@@ -174,4 +199,4 @@ Let ( [
 // GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/50d010f9885f7ae18e5ad4327545e5ac5912a929/functions/pillCloud.fmfn
 // BD Link : https://www.briandunning.com/cf/2803
 // Written by: jonni@me.com
-// V 1.0
+// V 1.3
