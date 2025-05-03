@@ -1,0 +1,169 @@
+// PROGRESS RINGS
+
+// Draws a multi-ring SVG progress doughnut 
+// using customisable ring data.
+
+// Function Name : progressRings
+// Parameters : width ; height ; defaultArray ; dataArray
+// Use example : progressRings ( 400 ; 400 ; $defaultArray ; $dataArray )
+
+// Note : See structure and syntax for defaultArray and dataArray below
+
+
+Let ( [
+
+	~def = defaultArray ;
+	~rings = JSONListValues ( dataArray ; "ring" ) ;
+	~width = Round ( width * ( 100 / Get ( WindowZoomLevel ) ) ; 0 ) ;
+	~height = Round ( height * ( 100 / Get ( WindowZoomLevel ) ) ; 0 ) ;
+	~center = ~width / 2 ;
+	~defaultStroke = JSONGetElement ( ~def ; "stroke" ) ;
+	~defaultPadding = JSONGetElement ( ~def ; "padding" ) ;
+	~defaultCap = JSONGetElement ( ~def ; "endCap" ) ;
+	~defaultBg = JSONGetElement ( ~def ; "color.background" ) ;
+	~backgroundColor = JSONGetElement ( ~def ; "color.background" ) ;
+	
+	// Background rect
+	~bgRect = "<rect width='" & ~width & "' height='" & ~height & "' fill='" & ~backgroundColor & "' />" ;
+	
+	// Loop over ring indexes
+	~svgRings = 
+	Let ( [
+	~total = ValueCount ( ~rings ) ;
+	~baseR = Min ( ~width ; ~height ) / 2 ;
+	
+	~result = 
+	
+		While ( 
+		
+			[ 
+			
+				i = 0 ; 
+				svg = "" ; 
+				paddingSum = 0 
+			
+			] ; 
+			
+				i ≤ ~total ; 
+	
+			[ 
+			
+				i = i + 1 ; 
+				ring = JSONGetElement ( dataArray ; "ring[" & ( i - 1 ) & "]" ) ;
+				val = Min ( 100 ; Max ( 0 ; JSONGetElement ( ring ; "value" ) ) ) ;
+				stroke = Case ( JSONGetElement ( ring ; "stroke" ) ≠ "" ; JSONGetElement ( ring ; "stroke" ) ; ~defaultStroke ) ;
+				cap = Case ( JSONGetElement ( ring ; "endCap" ) ≠ "" ; JSONGetElement ( ring ; "endCap" ) ; ~defaultCap ) ;
+				fg = JSONGetElement ( ring ; "color.foreground" ) ;
+				bg = Case ( JSONGetElement ( ring ; "color.background" ) ≠ "" ; JSONGetElement ( ring ; "color.background" ) ; ~defaultBg ) ;
+				
+				r = ~baseR - paddingSum - ( stroke / 2 ) ;
+				circ = 2 * Pi * r ;
+				offset = circ * ( 1 - ( val / 100 ) ) ;
+				circleBg = "<circle cx='" & ~center & "' cy='" & ~center & "' r='" & r & "' fill='none' stroke='" & bg & "' stroke-width='" & stroke & "' />" ;
+				circleFg = "<circle cx='" & ~center & "' cy='" & ~center & "' r='" & r & "' fill='none' stroke='" & fg & "' stroke-width='" & stroke & "' stroke-dasharray='" & circ & "' stroke-dashoffset='" & offset & "' stroke-linecap='" & cap & "' transform='rotate(-90 " & ~center & " " & ~center & ")' />" ;
+				
+				svg = svg & circleBg & circleFg ;
+				paddingSum = paddingSum + stroke + ~defaultPadding
+				
+			] ; 
+			
+				svg 
+			
+			)
+		
+		] ; 
+		
+			~result
+	
+	) ;
+	
+	// SVG wrapper
+	
+	~svg = 
+	"<?xml version='1.0' encoding='UTF-8'?>" &
+	
+	If ( Get(Device) > 2 ; 
+	
+		"<svg xmlns=\"http://www.w3.org/2000/svg\" style=\"width:100%;height:100%;\" viewBox=\"0 0 " & ~width & " " & ~height & "\" preserveAspectRatio=\"xMidYMid meet\">" ;
+		"<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%' viewBox='0 0 " & ~width & " " & ~height & "'>" 
+	
+	) &
+	
+	~bgRect &
+	~svgRings &
+	
+	"</svg>"
+
+] ;
+
+	Case ( 
+	
+		PatternCount ( Get ( ApplicationVersion ) ; "Web" ) ;
+		"data:image/svg+xml;base64," & Base64Encode ( Substitute ( ~svg ; "¶" ; "" ) ) ;
+		
+		Get( Device ) > 2 ;
+		
+		"data:text/html," & 
+			"<html>
+			<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no\">
+			<body style=\"margin:0;padding:0;background:" & ~backgroundColor & ";\">" &
+				~svg &
+			"</body>
+		</html>" ;
+		
+		"data:image/svg+xml;utf8," & Substitute ( ~svg ; "¶" ; "" )
+	
+	)
+
+)
+
+// This function generates a static, multi-ring progress doughnut using SVG, 
+// based on values passed in a valueArray JSON object. Each ring can specify 
+// its own stroke, color, and line cap, with fallbacks provided by a defaultArray. 
+// The drawing is rendered accurately across platforms, with fixed scaling that 
+// compensates for FileMaker’s zoom level. No text labels are shown.
+
+// The function returns an SVG URI (Base64, UTF-8, or embedded HTML for FM Go) 
+// that can be directly embedded in a Web Viewer.
+
+// Default Array Example
+
+//	JSONSetElement ( "" ; 
+	
+//		[ "color.background" ; "#FFFFFF" ; 1 ] ;
+	
+//		[ "endCap" ; "round" ; 1 ] ; // round, butt, square - or empty	
+//		[ "stroke" ; 14 ; 2 ] ;
+//		[ "padding" ; 4 ; 2 ] 
+		
+//	)
+
+// Data Array Example
+
+//	JSONSetElement ( "" ; 
+
+//	 	[ "ring[+]value" ; 64 ; 2 ] ;
+//		[ "ring[:]color.foreground" ; "#DF2F5D" ; 1 ] ; 
+//		[ "ring[:]color.background" ; "#F9D4DF" ; 1 ] ; 
+//		[ "ring[:]cap" ; "round" ; 1 ] ; // round, butt, square - or empty
+//		[ "ring[:]stroke" ; 0 ; 6 ] ;
+
+//	 	[ "ring[+]value" ; 58 ; 2 ] ;
+//		[ "ring[:]color.foreground" ; "#67BD46" ; 1 ] ; 
+//		[ "ring[:]color.background" ; "#E2F2D9" ; 1 ] ; 
+//		[ "ring[:]endCap" ; "" ; 1 ] ; // round, butt, square - or empty
+//		[ "ring[:]stroke" ; 0 ; 6 ] ;
+
+//	 	[ "ring[+]value" ; 38 ; 2 ] ;
+//		[ "ring[:]color.foreground" ; "#01B1DE" ; 1 ] ; 
+//		[ "ring[:]color.background" ; "#D6EFF7" ; 1 ] ; 
+//		[ "ring[:]cap" ; "" ; 1 ] ; // round, butt, square - or empty
+//		[ "ring[:]stroke" ; 14 ; 6 ] 
+	
+//	)
+
+
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/856e74f51e52ffa31614fa1c305e789ca88b78d1/functions/progressDoughNut.fmfn
+// BD Link : https://www.briandunning.com/cf/2808
+// Written by: jonni@me.com
+// V 1.0
