@@ -3,9 +3,9 @@
 // Draws stacked vertical columns based on range and value input using SVG. 
 // Customisable with JSON for appearance, padding, stroke, and alignment.
 
-// Function Name : columnStacksChart
+// Function Name : chartColumnStacks
 // Parameters : width ; height ; defaultArray ; dataArray
-// Use example : columnStacksChart ( 400 ; 400 ; $defaultArray ; $dataArray )
+// Use example : chartColumnStacks ( 400 ; 400 ; $defaultArray ; $dataArray )
 
 // Note : See structure and syntax for defaultArray and dataArray below
 
