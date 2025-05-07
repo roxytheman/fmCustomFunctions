@@ -3,9 +3,9 @@
 // Displays a multi-segment doughnut chart using SVG, 
 // with support for custom colours, stroke width, segment padding, and end caps.
 
-// Function Name : chartRowStacks
+// Function Name : chartDoughnut
 // Parameters : width ; height ; defaultArray ; dataArray
-// Use example : chartRowStacks ( 400 ; 400 ; $defaultArray ; $dataArray )
+// Use example : chartDoughnut ( 400 ; 400 ; $defaultArray ; $dataArray )
 
 // Note : See structure and syntax for defaultArray and dataArray below
 
@@ -166,7 +166,7 @@ Let ( [
 	
 //	)
 
-// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/73748a1616e122a06df61c8d5c6df0630fab85b6/functions/chartColumnStacks.fmfn
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/6af23f6a64c639a06a536631cde5729ccff5e0af/functions/chartDoughnut.fmfn
 // BD Link : https://www.briandunning.com/cf/2812
 // Written by: jonni@me.com
 // V 1.0
