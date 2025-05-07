@@ -1,0 +1,172 @@
+// DOUGHNUT CHART
+
+// Displays a multi-segment doughnut chart using SVG, 
+// with support for custom colours, stroke width, segment padding, and end caps.
+
+// Function Name : chartRowStacks
+// Parameters : width ; height ; defaultArray ; dataArray
+// Use example : chartRowStacks ( 400 ; 400 ; $defaultArray ; $dataArray )
+
+// Note : See structure and syntax for defaultArray and dataArray below
+
+Let ( [
+
+	~def = defaultArray ;
+	~d = dataArray ;
+	
+	// Fixed coordinate system
+	~baseSize = 400 ;
+	~center = ~baseSize / 2 ;
+	
+	// Scaled values
+	~stroke = JSONGetElement ( ~def ; "stroke" ) ;
+	~capDefault = JSONGetElement ( ~def ; "endCap" ) ;
+	~paddingDeg = JSONGetElement ( ~def ; "padding" ) ;
+	~radius = JSONGetElement ( ~def ; "radius" ) ;
+	~bgFill = JSONGetElement ( ~def ; "background.fill" ) ;
+	~bgRing = JSONGetElement ( ~def ; "color.background" ) ;
+
+	// Calculated arc baseline
+	~r = ~radius ;
+	~circ = 2 * Pi * ~r ;
+
+	// Segment data
+	~segments = JSONGetElement ( ~d ; "segments" ) ;
+	~count = ValueCount ( JSONListKeys ( ~segments ; "" ) ) ;
+
+	// Padding converted to arc length
+	~padLen = ( ~paddingDeg / 360 ) * ~circ ;
+
+	// Total value
+	~total = While ( [ 
+  
+		~i = 0 ; 
+		~sum = 0 
+	
+	] ;
+
+		~i < ~count ;
+		
+    [ 
+    
+		~sum = ~sum + JSONGetElement ( ~segments ; "[" & ~i & "].value" ) ; 
+		~i = ~i + 1 
+    
+    ] ;
+    
+		~sum
+    
+	) ;
+
+	// Arc generation
+	~arcs = While ( [ 
+	
+		~i = 0 ; 
+		~drawn = 0 ; 
+		~out = "" 
+		
+	] ;
+	
+		~i < ~count 
+    
+	; [
+	
+		~seg = JSONGetElement ( ~segments ; "[" & ~i & "]" ) ;
+		~cap = JSONGetElement ( ~seg ; "cap" ) ;
+		~cap = If ( IsEmpty ( ~cap ) ; ~capDefault ; ~cap ) ;
+		~val = JSONGetElement ( ~seg ; "value" ) ;
+		~color = JSONGetElement ( ~seg ; "color" ) ;
+		~pct = ~val / ~total ;
+		
+		// Arc length minus padding
+		~arcLen = ( ~pct * ~circ ) - ~padLen ;
+		~offset = ~drawn ;
+		
+		// Segment
+		~arc = "<circle cx='" & ~center & "' cy='" & ~center & "' r='" & ~r & "' fill='none' stroke='" & ~color & "' stroke-width='" & ~stroke & "' stroke-dasharray='" & ~arcLen & "," & ( ~circ - ~arcLen ) & "' stroke-dashoffset='-" & ~offset & "' stroke-linecap='" & ~cap & "' transform='rotate(-90 " & ~center & " " & ~center & ")' />";
+		~drawn = ~drawn + ( ~arcLen + ~padLen ) ;
+		~out = List ( ~out ; ~arc ) ;
+		~i = ~i + 1
+		
+    ] ;
+    
+		~out
+    
+	) ;
+
+	// Background ring
+	~ring = "<circle cx='" & ~center & "' cy='" & ~center & "' r='" & ~r & "' fill='none' stroke='" & ~bgRing & "' stroke-width='" & ~stroke & "' />" ;
+
+	// Final SVG
+	~svg = 
+	"<?xml version='1.0' encoding='UTF-8'?>" &
+	
+	If ( Get ( Device ) > 2 ;
+		"<svg xmlns='http://www.w3.org/2000/svg' style='width:100%;height:100%;' viewBox='0 0 " & ~baseSize & " " & ~baseSize & "' preserveAspectRatio='xMidYMid meet'>" ;
+		"<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%' viewBox='0 0 " & ~baseSize & " " & ~baseSize & "'>"
+	) &
+	
+	"<rect width='100%' height='100%' fill='" & ~bgFill & "' />" &
+		~ring &
+		Substitute ( ~arcs ; "¶" ; "" ) &
+	"</svg>"
+
+	] ;
+
+	Case (
+
+		PatternCount ( Get ( ApplicationVersion ) ; "Web" ) ;
+		"data:image/svg+xml;base64," & Base64Encode ( Substitute ( ~svg ; "¶" ; "" ) ) ;
+
+	Get ( Device ) > 2 ;
+	
+	"data:text/html," &
+	"<html>
+		<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no\">
+		<body style='margin:0;padding:0;background:" & ~bgFill & ";'>" &
+		~svg &
+		"</body>
+	</html>" ;
+	
+	"data:image/svg+xml;utf8," & Substitute ( ~svg ; "¶" ; "" )
+	
+	)
+)
+
+// The chartDoughnut function renders a scalable, circular doughnut chart with multiple 
+// segments, each defined by value and colour. Segments are proportionally distributed 
+// across the ring based on value totals, with optional padding between slices. 
+
+// Stroke thickness, background fill, and end cap style (round, square, or butt) are fully 
+// customisable. Works seamlessly across FileMaker Pro, WebDirect, and FileMaker Go using responsive SVG.
+
+// Default Array Example
+
+//	JSONSetElement ( "" ; 
+	
+//		[ "stroke" ; 40 ; 2 ] ;
+//		[ "endCap" ; "round" ; 1 ] ;
+//		[ "padding" ; 20 ; 2 ] ; // degrees between segments
+//		[ "background.fill" ; "#FFFFFF" ; 1 ] ;
+//		[ "color.background" ; "#FFFFFF" ; 1 ] ;
+//		[ "radius" ; 150 ; 2 ]
+	
+//	)
+	
+// Data Array Example
+
+//	JSONSetElement ( "" ; 
+	
+//		[ "segments[+]value" ; 30 ; 2 ] ;
+//		[ "segments[:]color" ; "#DF2F5D" ; 1 ] ;
+//		[ "segments[+]value" ; 50 ; 2 ] ;
+//		[ "segments[:]color" ; "#67BD46" ; 1 ] ;
+//		[ "segments[+]value" ; 20 ; 2 ] ;
+//		[ "segments[:]color" ; "#01B1DE" ; 1 ] 
+	
+//	)
+
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/73748a1616e122a06df61c8d5c6df0630fab85b6/functions/chartColumnStacks.fmfn
+// BD Link : https://www.briandunning.com/cf/2812
+// Written by: jonni@me.com
+// V 1.0
