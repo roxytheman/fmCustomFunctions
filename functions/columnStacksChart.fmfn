@@ -1,0 +1,202 @@
+// COLUMN STACKS CHART
+
+// Draws stacked vertical columns based on range and value input using SVG. 
+// Customisable with JSON for appearance, padding, stroke, and alignment.
+
+// Function Name : columnStacksChart
+// Parameters : width ; height ; defaultArray ; dataArray
+// Use example : columnStacksChart ( 400 ; 400 ; $defaultArray ; $dataArray )
+
+// Note : See structure and syntax for defaultArray and dataArray below
+
+
+Let ( [
+
+	~def = defaultArray ;
+	~dat = dataArray ;
+
+	// Layout
+	~width = Round ( width * ( 100 / Get ( WindowZoomLevel ) ) ; 0 ) ;
+	~height = Round ( height * ( 100 / Get ( WindowZoomLevel ) ) ; 0 ) ;
+	
+	// Defaults
+	~defaultStroke = GetAsNumber ( JSONGetElement ( ~def ; "stroke" ) ) ;
+	~defaultColor = JSONGetElement ( ~def ; "color.foreground" ) ;
+	~defaultBgColor = JSONGetElement ( ~def ; "color.background" ) ;
+	~backgroundFill = JSONGetElement ( ~def ; "background.fill" ) ;
+	~defaultCap = JSONGetElement ( ~def ; "endCap" ) ;
+	~padding = GetAsNumber ( JSONGetElement ( ~def ; "padding" ) ) ;
+	~min = GetAsNumber ( JSONGetElement ( ~def ; "min" ) ) ;
+	~max = GetAsNumber ( JSONGetElement ( ~def ; "max" ) ) ;
+	~range = Max ( 1 ; ~max - ~min ) ;
+	
+	// Columns
+	~cols = JSONListKeys ( ~dat ; "columns" ) ;
+	~align = Lower ( JSONGetElement ( ~def ; "align" ) ) ;
+	~barWidths = 
+	
+		While ( [ 
+		
+			i = 0 ; 
+			sum = 0 ; 
+			n = 
+			ValueCount ( ~cols ) 
+		
+		] ; 
+		
+			i < n 
+		
+		; [
+		
+			stroke = GetAsNumber ( JSONGetElement ( JSONGetElement ( ~dat ; "columns[" & i & "]" ) ; "stroke" ) ) ;
+			w = If ( stroke > 0 ; stroke ; ~defaultStroke ) ;
+			sum = sum + w + If ( i < n - 1 ; ~padding ; 0 ) ;
+			i = i + 1
+		
+		] ; 
+		
+			sum 
+		
+		) ;
+
+	~xStart = Case (
+		~align = "center" ; ( ~width - ~barWidths ) / 2 ;
+		~align = "right" ; ~width - ~barWidths ;
+		0
+	) ;
+	
+	~columns = 
+	
+	  While ( [
+	  
+		  i = 0 ;
+		  count = ValueCount ( ~cols ) ;
+		  x = ~xStart ;
+		  result = "" 
+		  
+		] ;
+	
+		i < count ;
+	
+		[
+			itemPath = "columns[" & i & "]" ;
+		  	item = JSONGetElement ( ~dat ; itemPath ) ;
+		  	val = GetAsNumber ( JSONGetElement ( item ; "value" ) ) ;
+		  	pct = ( val - ~min ) / ~range ;
+		  	barHeight = Max ( 0 ; pct * ~height ) ;
+	
+			color = JSONGetElement ( item ; "color" ) ;
+			barColor = If ( Length ( color ) ; color ; ~defaultColor ) ;
+	
+			stroke = GetAsNumber ( JSONGetElement ( item ; "stroke" ) ) ;
+			barWidth = If ( stroke > 0 ; stroke ; ~defaultStroke ) ;
+	
+			cap = JSONGetElement ( item ; "cap" ) ;
+			rx = If ( Lower ( If ( IsEmpty ( cap ) ; ~defaultCap ; cap ) ) = "round" ; Min ( barWidth ; barHeight ) / 2 ; 0 ) ;
+	
+			bar = 
+			
+				"<rect x='" & x & "' y='" & ( ~height - barHeight ) & 
+				"' width='" & barWidth & "' height='" & barHeight & 
+				"' fill='" & barColor & "' rx='" & rx & "' />" ;
+		
+			i = i + 1 ;
+			x = x + barWidth + ~padding ;
+			result = result & bar
+			
+		] ;
+	
+			result
+			
+		) ;
+
+	// SVG structure
+	~svg =
+	
+	"<?xml version='1.0' encoding='UTF-8'?>" & 
+	
+	If ( Get ( Device ) > 2 ;
+	
+	"<svg xmlns='http://www.w3.org/2000/svg' style='width:100%;height:100%;' viewBox='0 0 " & ~width & " " & ~height & "' preserveAspectRatio='xMidYMid meet'>" ;
+	"<svg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%' viewBox='0 0 " & ~width & " " & ~height & "'>"
+	
+	) &
+	
+	"<rect width='" & ~width & "' height='" & ~height & "' fill='" & ~backgroundFill & "' />" &
+	~columns &
+	"</svg>"
+
+	] ;
+
+	Case ( 
+	
+	PatternCount ( Get ( ApplicationVersion ) ; "Web" ) ;
+	"data:image/svg+xml;base64," & Base64Encode ( Substitute ( ~svg ; "¶" ; "" ) ) ;
+	
+	Get ( Device ) > 2 ;
+		"data:text/html," &
+		"<html>
+			<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
+			<body style='margin:0;padding:0;background:" & ~backgroundFill & ";'>" &
+			~svg &
+		"</body></html>" ;
+	
+	"data:image/svg+xml;utf8," & Substitute ( ~svg ; "¶" ; "" )
+	
+	)
+)
+
+// Column Stacks Chart is a stacked column chart widget for FileMaker layouts, styled and rendered using scalable SVG. 
+// Each column can define its own height, stroke, color, and cap style, while shared defaults like padding, stroke width, 
+// and background fill are set centrally. Columns align left, center, or right based on layout needs. Perfect for 
+// visualising multi-part progress or distribution metrics. Optimised for FileMaker Pro, Go, and WebDirect.
+
+// Default Array Example
+
+//	JSONSetElement ( "" ; 
+
+//		[ "min" ; 0 ; 2 ] ;
+//		[ "max" ; 50 ; 2 ] ;
+//		[ "padding" ; 10 ; 2 ] ;
+//		[ "stroke" ; 20 ; 2 ] ;
+//		[ "endCap" ; "round" ; 1 ] ;
+//		[ "background.fill" ; "#FFFFFF" ; 1 ] ;
+//		[ "color.background" ; "#CCCCCC" ; 1 ] ;
+//		[ "color.foreground" ; "#CB4400" ; 1 ] ;
+//		[ "align" ; "center" ; 1 ]
+
+//	)
+
+// Data Array Example
+
+//	JSONSetElement ( "" ; 
+
+//		[ "columns[+]value" ; 30 ; 2 ] ;
+//		[ "columns[:]color" ; "#F4511E" ; 1 ] ;
+//		[ "columns[:]stroke" ; 10 ; 2 ] ;
+//		[ "columns[:]cap" ; "" ; 1 ] ;
+
+//		[ "columns[+]value" ; 25 ; 2 ] ;
+
+//		[ "columns[+]value" ; 45 ; 2 ] ;
+//		[ "columns[:]color" ; "#F4511E" ; 1 ] ;
+//		[ "columns[:]cap" ; "square" ; 1 ]  ;
+
+//		[ "columns[+]value" ; 15 ; 2 ] ;
+//		[ "columns[:]color" ; "#F4511E" ; 1 ] ;
+//		[ "columns[:]stroke" ; 18 ; 2 ] ;
+//		[ "columns[:]cap" ; "" ; 1 ] ;
+
+//		[ "columns[+]value" ; 32 ; 2 ] ;
+//		[ "columns[:]color" ; "#F4511E" ; 1 ] ;
+
+//		[ "columns[+]value" ; 22 ; 2 ] ;
+//		[ "columns[:]color" ; "#F4511E" ; 1 ] ;
+//		[ "columns[:]cap" ; "" ; 1 ] 
+
+//	)
+
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/862c6f8ec0da4987f59d9c6be0cf1ed857088e8f/functions/progressRings.fmfn
+// BD Link : https://www.briandunning.com/cf/2810
+// Written by: jonni@me.com
+// V 1.0
