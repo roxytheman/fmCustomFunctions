@@ -1,0 +1,107 @@
+// PROGRESS RINGS
+
+// Renders a colored text-based progress bar using hex colors, 
+// font size, and percentage, with optional percent label.
+
+// Function Name : progressBarASCII
+// Parameters : completePct ; totalBlocks ; colorBar ; colorBackground ; fontSize ; showPercent
+// Use example : progressBarASCII ( 30 ; 10 ; "#7962a8" ; "#e8deee" ; 12 ; True )
+
+// Note : See structure and syntax for defaultArray and dataArray below
+
+
+Let ( [
+
+	// Inputs
+	~pct = Min ( Max ( completePct ; 0 ) ; 100 ) ;
+	~roundedPct = Ceiling ( ~pct / 10 ) * 10 ;
+	~blocksDone = Round ( ( ~roundedPct / 100 ) * totalBlocks ; 0 ) ;
+	~blocksRemaining = Max ( 0 ; totalBlocks - ~blocksDone ) ;
+	
+	~hexDigits = "0123456789abcdef" ;
+	
+	// Convert BAR color hex → RGB
+	~hexBar = Substitute ( Lower ( colorBar ) ; "#" ; "" ) ;
+	
+	~rBar = Let ( [ 
+		~hex = Left ( ~hexBar ; 2 ) ;
+		~hi = Position ( ~hexDigits ; Left ( ~hex ; 1 ) ; 1 ; 1 ) - 1 ;
+		~lo = Position ( ~hexDigits ; Right ( ~hex ; 1 ) ; 1 ; 1 ) - 1
+	] ; 
+		~hi * 16 + ~lo	
+	) ;
+	
+	~gBar = Let ( [ 
+		~hex = Middle ( ~hexBar ; 3 ; 2 ) ;
+		~hi = Position ( ~hexDigits ; Left ( ~hex ; 1 ) ; 1 ; 1 ) - 1 ;
+		~lo = Position ( ~hexDigits ; Right ( ~hex ; 1 ) ; 1 ; 1 ) - 1
+	] ; 
+		~hi * 16 + ~lo		
+	) ;
+	
+	~bBar = Let ( [ 
+		~hex = Middle ( ~hexBar ; 5 ; 2 ) ;
+		~hi = Position ( ~hexDigits ; Left ( ~hex ; 1 ) ; 1 ; 1 ) - 1 ;
+		~lo = Position ( ~hexDigits ; Right ( ~hex ; 1 ) ; 1 ; 1 ) - 1
+	] ; 
+		~hi * 16 + ~lo
+	) ;
+	
+	~rgbBar = RGB ( ~rBar ; ~gBar ; ~bBar ) ;
+	
+	// Convert BACKGROUND color hex → RGB
+	~hexBg = Substitute ( Lower ( colorBackground ) ; "#" ; "" ) ;
+	
+	~rBg = Let ( [ 
+		~hex = Left ( ~hexBg ; 2 ) ;
+		~hi = Position ( ~hexDigits ; Left ( ~hex ; 1 ) ; 1 ; 1 ) - 1 ;
+		~lo = Position ( ~hexDigits ; Right ( ~hex ; 1 ) ; 1 ; 1 ) - 1
+	] ; 
+		~hi * 16 + ~lo
+	) ;
+	
+	~gBg = Let ( [ 
+		~hex = Middle ( ~hexBg ; 3 ; 2 ) ;
+		~hi = Position ( ~hexDigits ; Left ( ~hex ; 1 ) ; 1 ; 1 ) - 1 ;
+		~lo = Position ( ~hexDigits ; Right ( ~hex ; 1 ) ; 1 ; 1 ) - 1
+	] ; 
+		~hi * 16 + ~lo
+	) ;
+	
+	~bBg = Let ( [ 
+		~hex = Middle ( ~hexBg ; 5 ; 2 ) ;
+		~hi = Position ( ~hexDigits ; Left ( ~hex ; 1 ) ; 1 ; 1 ) - 1 ;
+		~lo = Position ( ~hexDigits ; Right ( ~hex ; 1 ) ; 1 ; 1 ) - 1
+	] ; 
+		~hi * 16 + ~lo
+	) ;
+	
+	~rgbBg = RGB ( ~rBg ; ~gBg ; ~bBg ) ;
+	
+	// Render the bar
+	~barTemplate = "████████████████████████████████████████████████████████████████████████████████████" ;
+	~barDone = TextColor ( Left ( ~barTemplate ; ~blocksDone ) ; ~rgbBar ) ;
+	~barLeft = TextColor ( Left ( ~barTemplate ; ~blocksRemaining ) ; ~rgbBg ) ;
+	~fullBar = ~barDone & ~barLeft ;
+	
+	~result = If ( showPercent ; ~fullBar & " " & ~roundedPct & "%" ; ~fullBar ) ;
+	~styledResult = TextFontSize ( ~result ; fontSize )
+	
+	] ;
+	
+	~styledResult
+
+)
+
+// This custom function generates a visual progress bar composed of block characters (█) based on a 
+// given percentage. It accepts hex color codes for the foreground (completed portion) and background 
+// (remaining portion), converts them to RGB, and styles the result using TextColor and TextFontSize. 
+// The percentage is rounded up to the nearest 10% to determine block count, and an optional flag 
+// controls whether to display the numeric percentage after the bar.
+
+// Simple and effective. Suits for layout calculations.
+
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/862c6f8ec0da4987f59d9c6be0cf1ed857088e8f/functions/progressRings.fmfn
+// BD Link : https://www.briandunning.com/cf/2815
+// Written by: jonni@me.com and Carlos Machado
+// V 1.0
