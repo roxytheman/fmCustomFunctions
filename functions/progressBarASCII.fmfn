@@ -1,4 +1,4 @@
-// PROGRESS RINGS
+// PROGRESS BAR ASCII
 
 // Renders a colored text-based progress bar using hex colors, 
 // font size, and percentage, with optional percent label.
