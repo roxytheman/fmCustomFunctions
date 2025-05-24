@@ -7,9 +7,6 @@
 // Parameters : completePct ; totalBlocks ; colorBar ; colorBackground ; fontSize ; showPercent
 // Use example : progressBarASCII ( 30 ; 10 ; "#7962a8" ; "#e8deee" ; 12 ; True )
 
-// Note : See structure and syntax for defaultArray and dataArray below
-
-
 Let ( [
 
 	// Inputs
