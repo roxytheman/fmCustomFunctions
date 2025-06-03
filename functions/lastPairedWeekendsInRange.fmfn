@@ -75,7 +75,7 @@ Let ( [
 // month within a given date range. This function uses recursion to iterate through months, 
 // making it compatible with FileMaker versions prior to 18 which do not support the While function.
 
-// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/b504170786ef2d53ee52c1c294a0022e6178ed18/functions/LastSaturdaysInRange.fmfn
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/e3b8219fc5895f379aa54ca293fc6566399450a6/functions/lastPairedWeekendsInRange.fmfn
 // BD Link : https://www.briandunning.com/cf/2816
 // Written by: jonni@me.com
 // V 1.0
