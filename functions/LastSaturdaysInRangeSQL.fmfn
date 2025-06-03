@@ -5,9 +5,9 @@
 
 // NOTE : The segments are stacked, so make sure to order the array starting with the lowest percentages 
 
-// Function Name : LastSaturdaysInRangeSQL
+// Function Name : lastSaturdaysInRangeSQL
 // Parameters : startDate ; endDate
-// Use example : LastSaturdaysInRangeSQL ( Get ( CurrentDate ) ; Get ( CurrentDate ) + 365 )
+// Use example : lastSaturdaysInRangeSQL ( Get ( CurrentDate ) ; Get ( CurrentDate ) + 365 )
 
 Let ( [
     y = Year ( startDate ) ;
@@ -28,7 +28,7 @@ Let ( [
         Case (
             Date ( m + 1 ; 1 ; y ) > endDate ; "" ; ", "
         ) &
-        LastSaturdaysInRangeSQL ( nextMonth ; endDate )
+        lastSaturdaysInRangeSQL ( nextMonth ; endDate )
     )
 )
 

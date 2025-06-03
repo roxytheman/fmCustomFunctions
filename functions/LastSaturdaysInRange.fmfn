@@ -3,9 +3,9 @@
 // Returns a return-separated list of FileMaker-formatted dates representing 
 // the last Saturday of each month between the start and end dates.
 
-// Function Name : LastSaturdaysInRange
+// Function Name : lastSaturdaysInRange
 // Parameters : startDate ; endDate
-// Use example : LastSaturdaysInRange ( Get ( CurrentDate ) ; Get ( CurrentDate ) + 365 )
+// Use example : lastSaturdaysInRange ( Get ( CurrentDate ) ; Get ( CurrentDate ) + 365 )
 
 Let ( [
     y = Year ( startDate ) ;
@@ -20,7 +20,7 @@ Let ( [
         firstOfMonth > endDate ;
         "" ;
         lastSaturday & ¶ & 
-        LastSaturdaysInRange ( nextMonth ; endDate )
+        lastSaturdaysInRange ( nextMonth ; endDate )
     )
 )
 

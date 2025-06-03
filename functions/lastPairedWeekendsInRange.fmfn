@@ -4,9 +4,9 @@
 // the last Weekends of each month between the start and end dates where both
 // Saturday and Sunday fall within the same month.
 
-// Function Name : LastPairedWeekendsInRange
+// Function Name : lastPairedWeekendsInRange
 // Parameters : startDate ; endDate
-// Use example : LastPairedWeekendsInRange ( Get ( CurrentDate ) ; Get ( CurrentDate ) + 365 )
+// Use example : lastPairedWeekendsInRange ( Get ( CurrentDate ) ; Get ( CurrentDate ) + 365 )
 
 Let ( [
 
@@ -67,7 +67,7 @@ Let ( [
     If (
         firstOfMonth > endDate ;
         "" ;
-        lastWeekendPair & ¶ & LastPairedWeekendsInRange ( nextMonth ; endDate )
+        lastWeekendPair & ¶ & lastPairedWeekendsInRange ( nextMonth ; endDate )
     )
 )
 
@@ -76,6 +76,6 @@ Let ( [
 // making it compatible with FileMaker versions prior to 18 which do not support the While function.
 
 // GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/e3b8219fc5895f379aa54ca293fc6566399450a6/functions/lastPairedWeekendsInRange.fmfn
-// BD Link : https://www.briandunning.com/cf/2816
+// BD Link : https://www.briandunning.com/cf/2817
 // Written by: jonni@me.com
 // V 1.0
