@@ -1,0 +1,81 @@
+// LAST PAIRED WEEKENDS IN RANGE
+
+// Returns a return-separated list of FileMaker-formatted dates representing 
+// the last Weekends of each month between the start and end dates where both
+// Saturday and Sunday fall within the same month.
+
+// Function Name : LastPairedWeekendsInRange
+// Parameters : startDate ; endDate
+// Use example : LastPairedWeekendsInRange ( Get ( CurrentDate ) ; Get ( CurrentDate ) + 365 )
+
+Let ( [
+
+    // Current month context
+    y = Year ( startDate ) ;
+    m = Month ( startDate ) ;
+    firstOfMonth = Date ( m ; 1 ; y ) ;
+    lastOfMonth = Date ( m + 1 ; 0 ; y ) ;
+    lastDow = DayOfWeek ( lastOfMonth ) ;
+
+    // Initial candidate for last Saturday
+    candidateSaturday = lastOfMonth - Mod ( lastDow ; 7 ) ;
+
+    // Recursive helper to find the last weekend pair in the same month
+    lastWeekendPair = 
+        Let ( [
+            saturday = candidateSaturday ;
+            sunday = saturday + 1
+        ];
+            If (
+                Month ( sunday ) = m ;
+                saturday & ¶ & sunday ; // return the valid pair
+                // Step back 1 week and recurse
+                Let ( [
+                    newLastOfMonth = candidateSaturday - 7 ;
+                    newLastDow = DayOfWeek ( newLastOfMonth ) ;
+                    newCandidateSaturday = newLastOfMonth - Mod ( newLastDow ; 7 ) ;
+
+                    // Recursive helper repeated
+                    newSunday = newCandidateSaturday + 1
+                ];
+                    If (
+                        Month ( newSunday ) = m ;
+                        newCandidateSaturday & ¶ & newSunday ;
+                        Let ( [
+                            earlierLastOfMonth = newCandidateSaturday - 7 ;
+                            earlierLastDow = DayOfWeek ( earlierLastOfMonth ) ;
+                            earlierCandidateSaturday = earlierLastOfMonth - Mod ( earlierLastDow ; 7 ) ;
+                            earlierSunday = earlierCandidateSaturday + 1
+                        ];
+                            // Deep recursion – 3 levels
+                            If (
+                                Month ( earlierSunday ) = m ;
+                                earlierCandidateSaturday & ¶ & earlierSunday ;
+                                // Add more levels if needed (FileMaker 17 max recursion: 10,000)
+                                ""
+                            )
+                        )
+                    )
+                )
+            )
+        ) ;
+
+    // Go to the next month
+    nextMonth = Date ( m + 1 ; 1 ; y )
+
+];
+    If (
+        firstOfMonth > endDate ;
+        "" ;
+        lastWeekendPair & ¶ & LastPairedWeekendsInRange ( nextMonth ; endDate )
+    )
+)
+
+// Generates a list of dates in FileMaker Date format for the last Weekends of each 
+// month within a given date range. This function uses recursion to iterate through months, 
+// making it compatible with FileMaker versions prior to 18 which do not support the While function.
+
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/b504170786ef2d53ee52c1c294a0022e6178ed18/functions/LastSaturdaysInRange.fmfn
+// BD Link : https://www.briandunning.com/cf/2816
+// Written by: jonni@me.com
+// V 1.0
