@@ -82,7 +82,7 @@ Let ( [
 	~fullBar = ~barDone & ~barLeft ;
 	
 	~result = If ( showPercent ; ~fullBar & " " & ~roundedPct & "%" ; ~fullBar ) ;
-	~styledResult = TextFontSize ( ~result ; fontSize )
+	~styledResult = TextSize ( ~result ; fontSize )
 	
 	] ;
 	
