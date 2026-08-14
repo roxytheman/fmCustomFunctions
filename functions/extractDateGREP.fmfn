@@ -1,0 +1,193 @@
+// EXTRACT DATE GREP
+
+// Returns extracted date from text using GREP
+
+// Function Name : extractDateGREP
+// Parameters : inputText
+// Use example : extractDateGREP ( "1 April 1981" )
+// Dependency : BE_RegularExpression ( ) - https://github.com/GoyaPtyLtd/BaseElements-Plugin/blob/main/docs/Functions/BE_RegularExpression.md
+
+Let (
+	[
+		// Clean the input - trim and convert to lowercase for text month matching
+		cleanInput = Trim ( inputText ) ;
+		lowerInput = Lower ( cleanInput ) ;
+
+		// Pattern 1: dd/mm/yyyy or dd-mm-yyyy or dd.mm.yyyy
+		pattern1 = "\b(3[01]|[12][0-9]|0?[1-9])[-/.](1[0-2]|0?[1-9])[-/.]((19|20)?\d{2})\b" ;
+		match1 = BE_RegularExpression ( cleanInput ; pattern1 ; "g" ) ;
+
+		// Pattern 2: yyyy/mm/dd or yyyy-mm-dd
+		pattern2 = "\b((19|20)\d{2})[-/.](1[0-2]|0?[1-9])[-/.](3[01]|[12][0-9]|0?[1-9])\b" ;
+		match2 = BE_RegularExpression ( cleanInput ; pattern2 ; "g" ) ;
+
+		// Pattern 3: Written months - "1 April 1981" or "01 Apr 1981" or "1st April 1981"
+		pattern3 = "\b(3[01]|[12][0-9]|0?[1-9])(?:st|nd|rd|th)?\s+(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+((19|20)?\d{2})\b" ;
+		match3 = BE_RegularExpression ( lowerInput ; pattern3 ; "gi" ) ;
+
+		// Pattern 4: "April 1, 1981" or "Apr 1st, 1981"
+		pattern4 = "\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+(3[01]|[12][0-9]|0?[1-9])(?:st|nd|rd|th)?[,]?\s+((19|20)?\d{2})\b" ;
+		match4 = BE_RegularExpression ( lowerInput ; pattern4 ; "gi" ) ;
+
+		// Pattern 5: dd mm yyyy (spaces)
+		pattern5 = "\b(3[01]|[12][0-9]|0?[1-9])\s+(1[0-2]|0?[1-9])\s+((19|20)?\d{2})\b" ;
+		match5 = BE_RegularExpression ( cleanInput ; pattern5 ; "g" ) ;
+
+		// Find first valid match
+		rawMatch = Case (
+			not IsEmpty ( match1 ) ; match1 ;
+			not IsEmpty ( match3 ) ; match3 ;
+			not IsEmpty ( match4 ) ; match4 ;
+			not IsEmpty ( match2 ) ; match2 ;
+			not IsEmpty ( match5 ) ; match5 ;
+			""
+		) ;
+
+		matchType = Case (
+			not IsEmpty ( match1 ) ; 1 ;
+			not IsEmpty ( match3 ) ; 3 ;
+			not IsEmpty ( match4 ) ; 4 ;
+			not IsEmpty ( match2 ) ; 2 ;
+			not IsEmpty ( match5 ) ; 5 ;
+			0
+		)
+	] ;
+
+	If ( IsEmpty ( rawMatch ) ;
+		"False" ;
+
+		Let (
+			[
+				// Convert text month to number
+				monthNames = "jan¶feb¶mar¶apr¶may¶jun¶jul¶aug¶sep¶oct¶nov¶dec" ;
+
+				// Extract components based on match type
+				extractedMatch = Lower ( GetValue ( rawMatch ; 1 ) ) ;
+
+				// For pattern 1 & 5: dd/mm/yyyy
+				day1 = If ( matchType = 1 or matchType = 5 ;
+					BE_RegularExpression ( extractedMatch ; "^(3[01]|[12][0-9]|0?[1-9])" ; "" ) ;
+					""
+				) ;
+				month1 = If ( matchType = 1 or matchType = 5 ;
+					BE_RegularExpression ( extractedMatch ; "[-/.\s](1[0-2]|0?[1-9])[-/.\s]" ; "" ) ;
+					""
+				) ;
+				year1 = If ( matchType = 1 or matchType = 5 ;
+					BE_RegularExpression ( extractedMatch ; "((19|20)?\d{2})$" ; "" ) ;
+					""
+				) ;
+
+				// For pattern 2: yyyy/mm/dd
+				year2 = If ( matchType = 2 ;
+					BE_RegularExpression ( extractedMatch ; "^((19|20)\d{2})" ; "" ) ;
+					""
+				) ;
+				month2 = If ( matchType = 2 ;
+					BE_RegularExpression ( extractedMatch ; "[-/.\s](1[0-2]|0?[1-9])[-/.\s]" ; "" ) ;
+					""
+				) ;
+				day2 = If ( matchType = 2 ;
+					BE_RegularExpression ( extractedMatch ; "(3[01]|[12][0-9]|0?[1-9])$" ; "" ) ;
+					""
+				) ;
+
+				// For pattern 3: "1 April 1981"
+				day3 = If ( matchType = 3 ;
+					BE_RegularExpression ( extractedMatch ; "^(3[01]|[12][0-9]|0?[1-9])" ; "" ) ;
+					""
+				) ;
+				monthText3 = If ( matchType = 3 ;
+					BE_RegularExpression ( extractedMatch ; "(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)" ; "" ) ;
+					""
+				) ;
+				month3 = If ( matchType = 3 ;
+					ValueCount ( Left ( monthNames ; Position ( monthNames ; monthText3 ; 1 ; 1 ) ) ) ;
+					0
+				) ;
+				year3 = If ( matchType = 3 ;
+					BE_RegularExpression ( extractedMatch ; "(\d{2,4})$" ; "" ) ;
+					""
+				) ;
+
+				// For pattern 4: "April 1, 1981"
+				monthText4 = If ( matchType = 4 ;
+					BE_RegularExpression ( extractedMatch ; "^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)" ; "" ) ;
+					""
+				) ;
+				month4 = If ( matchType = 4 ;
+					ValueCount ( Left ( monthNames ; Position ( monthNames ; monthText4 ; 1 ; 1 ) ) ) ;
+					0
+				) ;
+				day4 = If ( matchType = 4 ;
+					BE_RegularExpression ( extractedMatch ; "\s(3[01]|[12][0-9]|0?[1-9])" ; "" ) ;
+					""
+				) ;
+				year4 = If ( matchType = 4 ;
+					BE_RegularExpression ( extractedMatch ; "(\d{2,4})$" ; "" ) ;
+					""
+				) ;
+
+				// Consolidate extracted values
+				rawDay = Case (
+					matchType = 1 or matchType = 5 ; day1 ;
+					matchType = 2 ; day2 ;
+					matchType = 3 ; day3 ;
+					matchType = 4 ; Trim ( day4 ) ;
+					""
+				) ;
+
+				rawMonth = Case (
+					matchType = 1 or matchType = 5 ;
+						Substitute ( Substitute ( Substitute ( month1 ; "/" ; "" ) ; "-" ; "" ) ; "." ; "" ) ;
+					matchType = 2 ;
+						Substitute ( Substitute ( Substitute ( month2 ; "/" ; "" ) ; "-" ; "" ) ; "." ; "" ) ;
+					matchType = 3 ; month3 ;
+					matchType = 4 ; month4 ;
+					""
+				) ;
+
+				rawYear = Case (
+					matchType = 1 or matchType = 5 ; year1 ;
+					matchType = 2 ; year2 ;
+					matchType = 3 ; year3 ;
+					matchType = 4 ; year4 ;
+					""
+				) ;
+
+				// Clean and format values
+				cleanDay = GetAsNumber ( rawDay ) ;
+				cleanMonth = GetAsNumber ( rawMonth ) ;
+				cleanYear = GetAsNumber ( rawYear ) ;
+
+				// Handle 2-digit years
+				fullYear = Case (
+					cleanYear >= 100 ; cleanYear ;
+					cleanYear >= 50 ; 1900 + cleanYear ;
+					2000 + cleanYear
+				) ;
+
+				// Validate the date
+				testDate = Date ( cleanMonth ; cleanDay ; fullYear ) ;
+				isValidDate = not IsEmpty ( testDate ) and
+					Day ( testDate ) = cleanDay and
+					Month ( testDate ) = cleanMonth and
+					Year ( testDate ) = fullYear ;
+
+				// Format output as dd/mm/yyyy
+				formattedDay = Right ( "0" & cleanDay ; 2 ) ;
+				formattedMonth = Right ( "0" & cleanMonth ; 2 ) ;
+				formattedDate = formattedDay & "/" & formattedMonth & "/" & fullYear
+			] ;
+
+			If ( isValidDate ; formattedDate ; "False" )
+		)
+	)
+)
+
+// Returns date from input text using GREP instead of return delimited text
+
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/38d14beb8bf089cf5796468f03b0a8197264559a/functions/extractDateGREP.fmfn
+// BD Link : https://www.briandunning.com/cf/2873
+// Written by: jonni@me.com
+// V 1.0
