@@ -1,0 +1,48 @@
+// GET DATES WEEK
+
+// Returns the 7 dates (Sunday–Saturday) of the week containing theDate,
+// as a return-delimited list, optionally offset by whole weeks.
+
+// Function Name : getDatesWeek
+// Parameters : theDate, operator, weeks
+// Use example : getDatesWeek ( Get ( CurrentDate ) ; "+" ; 2 )
+
+Let ( [
+
+	~input = GetAsDate( theDate ) ;
+	~offsetWeeks = Case (
+		IsEmpty ( operator ) or IsEmpty ( weeks ) ; 0 ;
+		operator = "-" ; -weeks ;
+		weeks
+	) ;
+	~sunday = ~input - DayOfWeek ( ~input ) + 1 + ( ~offsetWeeks * 7 )
+] ;
+	List (
+		~sunday ;
+		~sunday + 1 ;
+		~sunday + 2 ;
+		~sunday + 3 ;
+		~sunday + 4 ;
+		~sunday + 5 ;
+		~sunday + 6
+	)
+)
+
+// Returns the 7 dates (Sunday–Saturday) of the week containing theDate,
+// as a return-delimited list, optionally offset by whole weeks.
+
+// Parameters:
+//	theDate : any date
+//	operator: optional - "+" or "-". Omit (along with weeks) for no offset.
+//	weeks: optional - number of weeks to offset by
+//
+// Examples:
+//	getDatesWeek ( Get ( CurrentDate ) )			// current week, Sun-Sat
+//	getDatesWeek ( Get ( CurrentDate ) ; "+" ; 2 )		// 2 weeks from now
+//	getDatesWeek ( "1/1/2026" ; "-" ; 1 )				// 1 week before Jan 1 2026's week
+
+
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/856e74f51e52ffa31614fa1c305e789ca88b78d1/functions/getDatesWeek.fmfn
+// BD Link : https://www.briandunning.com/cf/2876
+// Written by: jonni@me.com
+// V 1.0

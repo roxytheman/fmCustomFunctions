@@ -1,0 +1,80 @@
+// GET DATES MONTH
+
+// Returns a list of all dates in the month of a given date
+// for use in FileMaker scripts, calendars, and schedules.
+
+// Function Name : getDatesMonth
+
+// Parameters : theDate ; operator ; months
+
+// Use example : getDatesMonth ( Get ( CurrentDate ) ; "" ; "" )
+// Use example : getDatesMonth ( Get ( CurrentDate ) ; "+" ; 2 )
+// Use example : getDatesMonth ( "1/1/2026" ; "-" ; 1 )
+
+// Note : 	operator and months are both optional -- omit both for no offset.
+//		operator is "+" or "-" ; months is the whole number of months to shift by.
+
+Let ( [
+
+	~input = GetAsDate ( theDate ) ;
+	~offsetMonths = Case (
+		IsEmpty ( operator ) or IsEmpty ( months ) ; 0 ;
+		operator = "-" ; -months ;
+		months
+	) ;
+	~targetMonth = Month ( ~input ) + ~offsetMonths ;
+	~targetYear = Year ( ~input ) ;
+	~firstOfMonth = Date ( ~targetMonth ; 1 ; ~targetYear ) ;
+	~lastOfMonth = Date ( ~targetMonth + 1 ; 1 ; ~targetYear ) - 1
+] ;
+	List (
+		Case ( ~firstOfMonth + 0 <= ~lastOfMonth ; ~firstOfMonth + 0 );
+		Case ( ~firstOfMonth + 1 <= ~lastOfMonth ; ~firstOfMonth + 1 );
+		Case ( ~firstOfMonth + 2 <= ~lastOfMonth ; ~firstOfMonth + 2 );
+		Case ( ~firstOfMonth + 3 <= ~lastOfMonth ; ~firstOfMonth + 3 );
+		Case ( ~firstOfMonth + 4 <= ~lastOfMonth ; ~firstOfMonth + 4 );
+		Case ( ~firstOfMonth + 5 <= ~lastOfMonth ; ~firstOfMonth + 5 );
+		Case ( ~firstOfMonth + 6 <= ~lastOfMonth ; ~firstOfMonth + 6 );
+		Case ( ~firstOfMonth + 7 <= ~lastOfMonth ; ~firstOfMonth + 7 );
+		Case ( ~firstOfMonth + 8 <= ~lastOfMonth ; ~firstOfMonth + 8 );
+		Case ( ~firstOfMonth + 9 <= ~lastOfMonth ; ~firstOfMonth + 9 );
+		Case ( ~firstOfMonth + 10 <= ~lastOfMonth ; ~firstOfMonth + 10 );
+		Case ( ~firstOfMonth + 11 <= ~lastOfMonth ; ~firstOfMonth + 11 );
+		Case ( ~firstOfMonth + 12 <= ~lastOfMonth ; ~firstOfMonth + 12 );
+		Case ( ~firstOfMonth + 13 <= ~lastOfMonth ; ~firstOfMonth + 13 );
+		Case ( ~firstOfMonth + 14 <= ~lastOfMonth ; ~firstOfMonth + 14 );
+		Case ( ~firstOfMonth + 15 <= ~lastOfMonth ; ~firstOfMonth + 15 );
+		Case ( ~firstOfMonth + 16 <= ~lastOfMonth ; ~firstOfMonth + 16 );
+		Case ( ~firstOfMonth + 17 <= ~lastOfMonth ; ~firstOfMonth + 17 );
+		Case ( ~firstOfMonth + 18 <= ~lastOfMonth ; ~firstOfMonth + 18 );
+		Case ( ~firstOfMonth + 19 <= ~lastOfMonth ; ~firstOfMonth + 19 );
+		Case ( ~firstOfMonth + 20 <= ~lastOfMonth ; ~firstOfMonth + 20 );
+		Case ( ~firstOfMonth + 21 <= ~lastOfMonth ; ~firstOfMonth + 21 );
+		Case ( ~firstOfMonth + 22 <= ~lastOfMonth ; ~firstOfMonth + 22 );
+		Case ( ~firstOfMonth + 23 <= ~lastOfMonth ; ~firstOfMonth + 23 );
+		Case ( ~firstOfMonth + 24 <= ~lastOfMonth ; ~firstOfMonth + 24 );
+		Case ( ~firstOfMonth + 25 <= ~lastOfMonth ; ~firstOfMonth + 25 );
+		Case ( ~firstOfMonth + 26 <= ~lastOfMonth ; ~firstOfMonth + 26 );
+		Case ( ~firstOfMonth + 27 <= ~lastOfMonth ; ~firstOfMonth + 27 );
+		Case ( ~firstOfMonth + 28 <= ~lastOfMonth ; ~firstOfMonth + 28 );
+		Case ( ~firstOfMonth + 29 <= ~lastOfMonth ; ~firstOfMonth + 29 );
+		Case ( ~firstOfMonth + 30 <= ~lastOfMonth ; ~firstOfMonth + 30 )
+	)
+)
+
+// This function finds the first and last day of the month containing theDate (optionally
+// shifted forward/back by a whole number of months via operator + months -- FileMaker's
+// Date() function normalises month overflow/underflow automatically, so year boundaries
+// are handled without extra logic), then returns every date in that month as a
+// return-delimited list. List() silently drops the Case() branches that fall outside the
+// month's actual day count, so short months (28/29/30 days) work without extra branching.
+// Companion function to getWeekDates.
+
+//	getDatesMonth ( "1/1/2026" ; "-" ; 1 )				
+// 	1 week before Jan 1 2026's week
+
+
+// GitHub : https://github.com/roxytheman/fmCustomFunctions/blob/856e74f51e52ffa31614fa1c305e789ca88b78d1/functions/getDatesMonth.fmfn
+// BD Link : https://www.briandunning.com/cf/2877
+// Written by: jonni@me.com
+// V 1.0
